@@ -1,0 +1,773 @@
+{
+  "version": 1,
+  "id": "kimi-2026-10",
+  "title": "Kimi · 2026 年 10 月案例",
+  "sourceDocument": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg",
+  "dateRange": [
+    "2026-10-22",
+    "2026-10-27"
+  ],
+  "cases": [
+    {
+      "key": "train",
+      "title": "日落蒸汽火车 SVG 动画",
+      "summary": "用内联 SVG 表现日落火车、机械连杆、蒸汽和分层景物的循环动画。",
+      "scene": "code",
+      "scenes": [
+        "code",
+        "landing"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/train.md",
+        "sha256": "97690bb1099d4967297c68c0f5fdc96b28a0340502b527ea3ae0345e5ed6300b"
+      },
+      "reference": {
+        "path": "media/train.mp4",
+        "mime": "video/mp4",
+        "sha256": "db0094b63d1eacfc14d4368c40a0c03b176b2e6690f70112dad638418ef857c8",
+        "size": 650376
+      },
+      "cover": {
+        "path": "covers/train.jpg",
+        "mime": "image/jpeg",
+        "sha256": "158a79ef07cf35ce023015ff2ecc80ab8d506439fc2ba389b6130ea8002482b7",
+        "size": 74251
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "动态 SVG"
+      ],
+      "provenance": {
+        "documentSection": "案例一：火车",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#WiHVd54DZo7kUkxSN9FcxHdrnRt",
+        "sessionId": "session_7f4f2296-58fa-49cd-bdf0-88cda51074a1",
+        "promptId": "msg_01M5KWNHD4R6BWJ3PEJC52V4F4",
+        "sentAt": "2026-10-23T16:05:04.595000+08:00",
+        "projectName": "kimi-svg1",
+        "videoName": "录屏2026-10-23 16.17.14",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    },
+    {
+      "key": "cheetah",
+      "title": "猎豹奔跑 SVG 动画",
+      "summary": "以日落草原为背景，制作包含四肢步态、脊柱屈伸和景深层次的猎豹奔跑动画。",
+      "scene": "code",
+      "scenes": [
+        "code",
+        "landing"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/cheetah.md",
+        "sha256": "240f7a06f0805cf20069b6efe5cb331e2fcc4c58fb14a8665a72e690794125bb"
+      },
+      "reference": {
+        "path": "media/cheetah.mp4",
+        "mime": "video/mp4",
+        "sha256": "d3a0ac0bfea919849468edffccaa009cbe7139d278103d90e00a24b20c7804dd",
+        "size": 928228
+      },
+      "cover": {
+        "path": "covers/cheetah.jpg",
+        "mime": "image/jpeg",
+        "sha256": "f7e0d404686fcf3724f8501a6d81ec2cd522586c9a817435e721cd60a4d79838",
+        "size": 59034
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "动态 SVG"
+      ],
+      "provenance": {
+        "documentSection": "案例二：猎豹奔跑",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#JSjtdI9LuorXSExpfIHct8Cwnlf",
+        "sessionId": "session_3f037e52-a8a0-439a-9ded-e5cc9ee59ac0",
+        "promptId": "msg_01M5KWP6W2DJ8JJ8004ZW3WY5G",
+        "sentAt": "2026-10-23T16:05:26.552000+08:00",
+        "projectName": "kimi-svg2",
+        "videoName": "录屏2026-10-23 16.40.04",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    },
+    {
+      "key": "bicycle",
+      "title": "日落公路骑行 SVG 动画",
+      "summary": "制作日落骑行矢量动画，重点是人物踩踏、曲柄链条联动和分层公路景物。",
+      "scene": "code",
+      "scenes": [
+        "code",
+        "landing"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/bicycle.md",
+        "sha256": "c7507a6415a80bfbc92af1a0ebf51e045a0cc7715165557b1587832c7791b778"
+      },
+      "reference": {
+        "path": "media/bicycle.mp4",
+        "mime": "video/mp4",
+        "sha256": "42e8081972f20bfcb175dfea18bfe773743bfdbe34d4199498f95052c1eaa88e",
+        "size": 685961
+      },
+      "cover": {
+        "path": "covers/bicycle.jpg",
+        "mime": "image/jpeg",
+        "sha256": "9bdf4279d1dd7f67cfaa7689a53a6929cb5270da8ee951c81330970dabf00612",
+        "size": 68181
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "动态 SVG"
+      ],
+      "provenance": {
+        "documentSection": "案例三：日落自行车",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#XjpJd8VXHoFQhixHd4LcDhzInTh",
+        "sessionId": "session_6910873f-56b1-4f7a-9db1-3d52da2a374e",
+        "promptId": "msg_01M5KWPX7KKJVSQXWAFY2AS1K4",
+        "sentAt": "2026-10-23T16:05:49.473000+08:00",
+        "projectName": "kimi-svg3",
+        "videoName": "录屏2026-10-23 16.42.15",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    },
+    {
+      "key": "particles",
+      "title": "动态吸引子粒子变换",
+      "summary": "用 Three.js 制作发光粒子形态变换，支持拖动、缩放及粒子数量与颜色调整。",
+      "scene": "landing",
+      "scenes": [
+        "landing",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/particles.md",
+        "sha256": "bccf2de334b7f808763968893299c775fdfecab511aa071528d0c6c49202277d"
+      },
+      "reference": {
+        "path": "media/particles.mp4",
+        "mime": "video/mp4",
+        "sha256": "88200e64f4ac44a5a74375ff14a3224851e4fa3c527ce416d433d437f548c336",
+        "size": 10384436
+      },
+      "cover": {
+        "path": "covers/particles.jpg",
+        "mime": "image/jpeg",
+        "sha256": "7095500370d091391985168d05a3f40738848aac7d78fc5cabf31d16992c3a7a",
+        "size": 78377
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "效果最好的案例：粒子变换",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#MKa1dzFH5oI5HTxco3YcBjsSnEc",
+        "sessionId": "session_0a875be2-2cdb-4816-894e-6c9230f87a0a",
+        "promptId": "msg_01M5M0HVZ06ENT42CTNSPEZ4GK",
+        "sentAt": "2026-10-23T17:12:58.615000+08:00",
+        "projectName": "kimi发光粒子",
+        "videoName": "录屏2026-10-24 08.48.51",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "referenceNote": "参考视频可能包含后续修改，不作为首轮提示词的独立效果验证。",
+        "coverFraction": 0.45
+      },
+      "followups": [
+        {
+          "text": "你看一下这个视频，按照这个的动态效果改一下，他们的粒子在洛伦兹的时候粒子本身就会运动，而不是停在原地。然后其他的粒子有能运动的也需要考虑做一些粒子运动，你认为呢？做一下修改吧",
+          "sentAt": "2026-10-23T18:24:31.232000+08:00",
+          "attachments": [
+            "录屏2026-10-23 18.13.39.mov"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "book",
+      "title": "MARGIN 书本翻页网页",
+      "summary": "以钴蓝色精装书为主体，制作滚动驱动的开合、翻页、相机和排版叙事。",
+      "scene": "landing",
+      "scenes": [
+        "landing",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "expression"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/book.md",
+        "sha256": "71fb9674aa38af8547020b1553505037006a8c8ce980def1cbf7f1e102e2a921"
+      },
+      "reference": {
+        "path": "media/book.mp4",
+        "mime": "video/mp4",
+        "sha256": "58587e8043877eabc4d34ec897a772053f68524bd92082aeffdd4edc8efa1e4d",
+        "size": 2105004
+      },
+      "cover": {
+        "path": "covers/book.jpg",
+        "mime": "image/jpeg",
+        "sha256": "8aa65c4802c6d35bfe1e2993d6c9becf2d60c3a2c82f50679c8cb6eda01058f7",
+        "size": 47781
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例一：书本翻页前端案例",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#BFzNdup9QonL6axpJjScIy3unHf",
+        "sessionId": "session_2c3738e2-aa3b-4e48-b3f7-4f9a170b2b88",
+        "promptId": "msg_01M5K80MAC3SDHJDG442ZZRAPC",
+        "sentAt": "2026-10-23T10:04:07.908000+08:00",
+        "projectName": "kimi体素2",
+        "videoName": "录屏2026-10-23 10.38.50",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.72
+      },
+      "followups": []
+    },
+    {
+      "key": "fizz",
+      "title": "FIZZ 气泡水产品网页",
+      "summary": "制作气泡水品牌广告网页，呈现铝瓶、气泡和滚动驱动的产品动态。",
+      "scene": "landing",
+      "scenes": [
+        "landing",
+        "writing",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "expression"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/fizz.md",
+        "sha256": "4b28d8c487a3a6053300c705485f1c67d4323c5c65709f0b49f83b26a55e3f3f"
+      },
+      "reference": {
+        "path": "media/fizz.mp4",
+        "mime": "video/mp4",
+        "sha256": "868029b88e532d0a4941f766c8786f20897ca0f1f52d82d3f654bc7fab984bec",
+        "size": 2848533
+      },
+      "cover": {
+        "path": "covers/fizz.jpg",
+        "mime": "image/jpeg",
+        "sha256": "a87de446fe2021ce1084070b6b8a5247bcc60b5479c688ab436bf5cd15c31a86",
+        "size": 62384
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例二：汽水广告",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#C5BedVpuoozxhIxR1KvcdM7Qn2f",
+        "sessionId": "session_563d1486-9781-4929-a2b8-187b257b3f9d",
+        "promptId": "msg_01M5P2F907WBBVVQHWXNF653NN",
+        "sentAt": "2026-10-24T12:24:59.714000+08:00",
+        "projectName": "kimi汽水",
+        "videoName": "录屏2026-10-24 13.22.39",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    },
+    {
+      "key": "mist",
+      "title": "MIST 香水叙事网页",
+      "summary": "制作高奢香水产品网页，表现透明瓶体、液体、拆分部件和滚动叙事。",
+      "scene": "landing",
+      "scenes": [
+        "landing",
+        "writing",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "expression"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/mist.md",
+        "sha256": "a72a15410bcad4a719061f9ee67fd0ea3348403d07b9d1d19a50ad6dc80f5d9d"
+      },
+      "reference": {
+        "path": "media/mist.mp4",
+        "mime": "video/mp4",
+        "sha256": "04a0a959e45499e16f10d92774d791a893adc3daa9edf51650cd0b18fed1938a",
+        "size": 790853
+      },
+      "cover": {
+        "path": "covers/mist.jpg",
+        "mime": "image/jpeg",
+        "sha256": "2ea01f9a345e9890ada3676153854feb8a8a9ec48c39ce692f063c114403fa7e",
+        "size": 29656
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例三：香水广告",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#GkFadWrrIoVklFxdFo5c7Au6nJh",
+        "sessionId": "session_92f26f44-246f-40e7-bb5a-5a3708bbde23",
+        "promptId": "msg_01M5P2EBK4Z9JQG4WBW8ZCX5QX",
+        "sentAt": "2026-10-24T12:24:29.570000+08:00",
+        "projectName": "kimi香水",
+        "videoName": "录屏2026-10-24 13.28.12",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.72
+      },
+      "followups": []
+    },
+    {
+      "key": "jiuzhou",
+      "title": "九州：量天 · 国风巨构网页",
+      "summary": "围绕天阙、龙廊、山海和璇玑四境，用连续运镜表现国风巨构与渺小人物的尺度反差。",
+      "scene": "landing",
+      "scenes": [
+        "landing",
+        "voxel",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason",
+        "long",
+        "expression"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/jiuzhou.md",
+        "sha256": "2169c0995474b888c686653e9a730685d6f3370448a6077f2d1f44e61f44660a"
+      },
+      "reference": {
+        "path": "media/jiuzhou.mp4",
+        "mime": "video/mp4",
+        "sha256": "f7e48bd228dcde374388c2f68fd06a4004a5ac5241f444a5b0c4bbd846aad026",
+        "size": 3767476
+      },
+      "cover": {
+        "path": "covers/jiuzhou.jpg",
+        "mime": "image/jpeg",
+        "sha256": "bf50c4aed5bc2e105ce39884bb29f0c8961a145e716f8d70422599b27b298742",
+        "size": 82644
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例四：风格化巨构对比落地页",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#KKk9dLDPXoTf5cxVdaYcZS7fniJ",
+        "sessionId": "session_be48e7d9-2325-4a13-bfa6-bbfaa9314737",
+        "promptId": "msg_01M5KJ06R4NZ63417TED8Z3WH8",
+        "sentAt": "2026-10-23T12:58:39.758000+08:00",
+        "projectName": "kimi体素3",
+        "videoName": "录屏2026-10-23 16.02.39",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "alsoSeenInSessions": [
+          "session_6f685a4f-4667-4dde-867a-5ec85e103363"
+        ],
+        "coverFraction": 0.72
+      },
+      "followups": []
+    },
+    {
+      "key": "shooter",
+      "title": "涂界冲锋 · 3D 涂地射击",
+      "summary": "制作原创 3 对 3 涂地 FPS，包含 AI 队友与敌人、地面覆盖统计、击败重生和对局结算。",
+      "scene": "game",
+      "scenes": [
+        "game",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason",
+        "long"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/shooter.md",
+        "sha256": "65d3c53d22a2fb6035753475c984a15500997ac968ec7ae4d84d26b748215603"
+      },
+      "reference": {
+        "path": "media/shooter.mp4",
+        "mime": "video/mp4",
+        "sha256": "62e99e3faea002b447a537711c38522c126b872b4ca923a7f8720cbbe82810be",
+        "size": 7980586
+      },
+      "cover": {
+        "path": "covers/shooter.jpg",
+        "mime": "image/jpeg",
+        "sha256": "c4f1f55baa8f0da8ffa29955ed5da27683496ae624fc3adc838e9c2cea6757ed",
+        "size": 116434
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例一：喷射战士fps游戏。",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#URXVdERjNoZ0XtxAKlochCYAnFc",
+        "sessionId": "session_162c7124-e30a-47a1-bf45-6930faf33874",
+        "promptId": "msg_01M5HW02AAGXH27Q9F7DFQEGPW",
+        "sentAt": "2026-10-22T21:14:52.117000+08:00",
+        "projectName": "kimi-喷射战士",
+        "videoName": "录屏2026-10-23 00.22.48",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    },
+    {
+      "key": "resin-island",
+      "title": "琼脂块海岛微缩景观",
+      "summary": "制作透明海水树脂块与微缩海岛，支持水面涟漪、弹性参数和旋转观察。",
+      "scene": "voxel",
+      "scenes": [
+        "voxel",
+        "landing",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/resin-island.md",
+        "sha256": "2894f100be5fc1aa51a1d02668840c2a07cd2092cc510b0ec3019071e03e776c"
+      },
+      "reference": {
+        "path": "media/resin-island.mp4",
+        "mime": "video/mp4",
+        "sha256": "df081749165ef15e35e148bfbaa6cf08189dd56fe6817eff7945e7e6821fc858",
+        "size": 2031997
+      },
+      "cover": {
+        "path": "covers/resin-island.jpg",
+        "mime": "image/jpeg",
+        "sha256": "2be258c276feb72578c0e57f9e2ee213d9b1a55c1dcb193a09db61f34e69fd22",
+        "size": 60146
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例一：琼脂块海景",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#ZORFdIKBwoIsHIxhkZ6cbWWendh",
+        "sessionId": "session_38a043bf-999e-4e7c-9c6c-ebf651c0c132",
+        "promptId": "msg_01M5J6DXXJB9AC1S4TEZENJR1B",
+        "sentAt": "2026-10-23T00:17:12.135000+08:00",
+        "projectName": "kimi风格话小游戏",
+        "videoName": "录屏2026-10-23 00.52.11",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    },
+    {
+      "key": "qinian",
+      "title": "天坛祈年殿 3D 网页",
+      "summary": "围绕祈年殿、圜丘坛、回音壁和丹陛桥制作可绕看、带黄昏光影的三维建筑场景。",
+      "scene": "voxel",
+      "scenes": [
+        "voxel",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "tools",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/qinian.md",
+        "sha256": "aa1d34155de68d5cd16b76248fd3f1faf51432ca4dcb9df15ee98120855f2344"
+      },
+      "reference": {
+        "path": "media/qinian.mp4",
+        "mime": "video/mp4",
+        "sha256": "0c1b73538ea0b1534019d4e65768a64b33eeb5b55a9599ccccde9608ee65d16e",
+        "size": 5395179
+      },
+      "cover": {
+        "path": "covers/qinian.jpg",
+        "mime": "image/jpeg",
+        "sha256": "3f5fc0ff9b44953f00e128b2f32dbaece0aced60498290fc722a09b980a56427",
+        "size": 64748
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例二：天坛祈年殿3D体素",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#TUYRdJeD0oouq1xKj1PcRxnonIb",
+        "sessionId": "session_343ffd63-6b8e-4209-9f34-0d8d6b409e04",
+        "promptId": "msg_01M5K94BRV0X7ZNRJWFN7KE4NC",
+        "sentAt": "2026-10-23T10:23:38.801000+08:00",
+        "projectName": "kimi体素2",
+        "videoName": "录屏2026-10-23 11.31.09",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "referenceNote": "参考视频可能包含后续修改，不作为首轮提示词的独立效果验证。",
+        "coverFraction": 0.18
+      },
+      "followups": [
+        {
+          "text": "你再搜索一下祈年殿的图片和资料，我要的是一比一的祈年殿",
+          "sentAt": "2026-10-24T08:13:25.580000+08:00",
+          "attachments": []
+        }
+      ]
+    },
+    {
+      "key": "amber-kingdom",
+      "title": "琥珀王国体素微缩景观",
+      "summary": "制作骑士从城堡经过森林、木桥并打开宝箱的体素故事，包含回放、暂停和观察控制。",
+      "scene": "voxel",
+      "scenes": [
+        "voxel",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/amber-kingdom.md",
+        "sha256": "9efb3f9c25803fb1d8bf8fa9dee842751a62a554f8ef92bae5710478e10a4b97"
+      },
+      "reference": {
+        "path": "media/amber-kingdom.mp4",
+        "mime": "video/mp4",
+        "sha256": "95da5954ed3646e50fd7e2c568943e35cea19525a5d5a8fb215a39ce2fb408e2",
+        "size": 255452
+      },
+      "cover": {
+        "path": "covers/amber-kingdom.jpg",
+        "mime": "image/jpeg",
+        "sha256": "d701a78330a6d77f78f1915b96db53b8b36240ab6e063a5f5456bb3d197ef99d",
+        "size": 101209
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例三：琥珀王国微缩景观案例",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#ZKLDd5zuBopMwAxJYkIct8XUnID",
+        "sessionId": "session_01af7cf0-5627-4ff4-ac57-0fc18ba08798",
+        "promptId": "msg_01M5P2WZ8DFQWH57CRCDP63N28",
+        "sentAt": "2026-10-24T12:32:28.474000+08:00",
+        "projectName": "kimi微缩景观",
+        "videoName": "录屏2026-10-25 18.57.04",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "referenceNote": "参考视频可能包含后续修改，不作为首轮提示词的独立效果验证。",
+        "coverFraction": 0.45
+      },
+      "followups": [
+        {
+          "text": "太慢了，能不能整体时长缩短到10s？",
+          "sentAt": "2026-10-24T13:07:05.815000+08:00",
+          "attachments": []
+        }
+      ]
+    },
+    {
+      "key": "cocktail",
+      "title": "Pink hour 交互鸡尾酒",
+      "summary": "制作粉红鸡尾酒的三维产品展示，表现厚玻璃、液体、装饰与交互运动。",
+      "scene": "voxel",
+      "scenes": [
+        "voxel",
+        "landing",
+        "code"
+      ],
+      "capabilities": [
+        "follow",
+        "coding",
+        "reason"
+      ],
+      "artifactType": "web",
+      "artifactTypes": [
+        "web"
+      ],
+      "executionMode": "html",
+      "prompt": {
+        "path": "prompts/cocktail.md",
+        "sha256": "94fe4c72ee005dde4aa8d26ed7c464d5dcb7fdad1acb7bf756eb1aa0160750cc"
+      },
+      "reference": {
+        "path": "media/cocktail.mp4",
+        "mime": "video/mp4",
+        "sha256": "d84abc0e996db72c1f984b43073fa49dd8c2f5cdbc5f69b26b5dba51b40d5951",
+        "size": 647328
+      },
+      "cover": {
+        "path": "covers/cocktail.jpg",
+        "mime": "image/jpeg",
+        "sha256": "6cd2759eddb4c7070a027ad7205ce114efde665e13cd97dbb6358a7df16cb090",
+        "size": 22596
+      },
+      "tags": [
+        "Kimi 2026-10",
+        "Three.js"
+      ],
+      "provenance": {
+        "documentSection": "案例四：酒杯交互案例",
+        "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#OqNAdllpJo2uBAxAvt1cHZs1nbb",
+        "sessionId": "session_6e0c86b7-8ac3-4e25-921f-5cf317426801",
+        "promptId": "msg_01M5M18TW62YJ5KXF49DX9PZER",
+        "sentAt": "2026-10-23T17:25:31.196000+08:00",
+        "projectName": "kimi酒杯",
+        "videoName": "录屏2026-10-23 18.00.55",
+        "videoLabel": "Kimi（飞书原文标记）",
+        "promptPolicy": "原始首轮执行提示词，逐字保留；后续对话单独归档，不额外追加产物要求。",
+        "coverFraction": 0.45
+      },
+      "followups": []
+    }
+  ],
+  "pending": [
+    {
+      "key": "fishing",
+      "title": "海岛钓鱼游戏",
+      "summary": "飞书有 Kimi 的 Tidepool-30s 演示；本机仅找到相关提示词设计讨论，未找到可确认对应这段演示的完整执行提示词。",
+      "url": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#Ku32dEJ08oMt8rxdCUwcXnfRnIh",
+      "reason": "missing-confirmed-execution-prompt",
+      "reference": {
+        "path": "media/fishing.mp4",
+        "mime": "video/mp4",
+        "sha256": "a995bb96b7d2a9abf08d366b2a5b75c4a78d4407983c55448dcf10aaf74cecd8",
+        "size": 2359456
+      },
+      "cover": {
+        "path": "covers/fishing.jpg",
+        "mime": "image/jpeg",
+        "sha256": "23f807f8626cd9acf545413ec4868ddcce71a439072356cc8c84f976e191de66",
+        "size": 82297
+      },
+      "documentSection": "案例二：钓鱼游戏"
+    },
+    {
+      "key": "robot",
+      "title": "宇树 G1 机电解构图谱",
+      "summary": "飞书提供 Kimi 的 G1 机电图谱网页，含装配拆解与动作教学；本次本机 Kimi 会话中未找到对应的原始提示词。",
+      "url": "https://huali-car.cn/g1-atlas/",
+      "documentUrl": "https://my.feishu.cn/wiki/K0CQwztiriJXDPk1uFocE1d4nYg#SvPYd8e9forhEpxwHUycZu82n9e",
+      "reason": "missing-original-prompt",
+      "documentSection": "案例五：blender3D建模宇树机器人",
+      "reference": {
+        "path": "media/robot-site.jpg",
+        "mime": "image/jpeg",
+        "sha256": "1ec2af88ed4be20884768ad9e192b1982e0190fe35cfe099a39c58a71d855584",
+        "size": 61911
+      }
+    }
+  ]
+}
