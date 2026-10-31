@@ -16,6 +16,11 @@ import './writing-compose.css';
 import './sidebar-workspaces.css';
 import './hotspots.css';
 import './collection-controls.css';
+import './media-workflow.css';
+import './content-library.css';
+import './article-workbench.css';
+import './card-articles.css';
+import './material-grid.css';
 
 export const metadata: Metadata = { title: '测写 · 内容创作与案例实测', description: '从选题与案例实测，到整理素材和写作成稿。' };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

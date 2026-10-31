@@ -1,3 +1,4 @@
+import {collectorExtensionPackage} from '@/packages/core/collector-extension';
 import {collectorFetch} from '@/packages/core/hotspots/client';
 import {HotspotsBridge} from '@/packages/core/hotspots/bridge';
 import {getStore} from '@/packages/core/db';
@@ -23,7 +24,7 @@ async function handler(request:Request,context:{params:Promise<{path:string[]}>}
    if(p[1]==='experiment'&&p[2]&&typeof data.experimentId==='string')return Response.json(await bridge.experiment(p[2],data.experimentId));
    throw new AppError(404,'关联操作不存在');
   }
-  const route=p.join('/');let eventBody:Buffer|undefined;
+  const route=p.join('/');if(route==='collector/extension.zip'&&request.method==='GET')return new Response(new Uint8Array(await collectorExtensionPackage()),{headers:{'content-type':'application/zip','content-disposition':'attachment; filename=hot-monitor-collector.zip','cache-control':'no-store'}});let eventBody:Buffer|undefined;
   if(route==='events'&&request.method==='POST'){eventBody=await body(request);const input=JSON.parse(eventBody.toString()||'{}');if(!input.url)return Response.json(await new HotspotsBridge(new CasebenchService(await getStore())).addLocalTopic(input));}
   const topicUsage=route==='overview'?await new HotspotsBridge(new CasebenchService(await getStore())).usage():null;
   if(topicUsage&&u.searchParams.get('mode')==='used')u.searchParams.set('ids',Object.keys(topicUsage).join(','));

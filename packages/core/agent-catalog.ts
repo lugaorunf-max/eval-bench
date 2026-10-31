@@ -1,7 +1,7 @@
 import { AGENT_TYPES, capture, findAgent, rpcClient } from '../../scripts/agent-runtime.mjs';
 import { loadProfiles, stateDir } from './config';
 import path from 'node:path';
-import { probeAcpAgent, SESSION_PROFILES,probeWorkbuddyAgent,executionHealth } from '../../scripts/native-agents.mjs';
+import { probeAcpAgent, SESSION_PROFILES,probeWorkbuddyAgent,executionHealth,workbuddyEnvironment } from '../../scripts/native-agents.mjs';
 import type { AgentCatalog, AgentModel } from '../contracts';
 
 let cached: { at: number; value: AgentCatalog[] } | undefined;
@@ -15,7 +15,7 @@ export async function agentCatalog(force = false): Promise<AgentCatalog[]> {
       const at = new Date().toISOString(), installation = await findAgent(definition.id);
       const base: AgentCatalog = { id: definition.id, name: definition.name, profileId: null, ready: false, installed: !!installation, state: 'not_installed', detail: '未发现本机安装，可设置程序路径后刷新', models: [], modelSource: 'none', checkedAt: at, capabilities: { continuation: false, usage: false, streaming: false, history: false } };
       if (!installation) return base;
-      try { base.version = (await capture(installation.program,[...installation.args,'--version'],{timeout:5000,env: definition.id==='workbuddy'?{CODEBUDDY_FORCE_LITE_WB_BUNDLE:'1'}:{}})).split('\n').at(-1)?.slice(0,200); } catch { base.version='未知'; }
+      try { base.version = (await capture(installation.program,[...installation.args,'--version'],{timeout:5000,env: definition.id==='workbuddy'?workbuddyEnvironment(installation):{}})).split('\n').at(-1)?.slice(0,200); } catch { base.version='未知'; }
       if (definition.id !== 'gpt') {
         const profile=profiles.find(p=>p.id===SESSION_PROFILES[definition.id]);base.profileId=profile?.id||null;
         if(definition.id==='deepseek'||definition.id==='minimax')try{

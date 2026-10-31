@@ -22,7 +22,8 @@ test('editable document persists, validates references, restores versions and re
     doc.content!.splice(1,0,{type:'writingReference',attrs:{referenceId:a.references[0].id}},{type:'writingMedia',attrs:{fileId:image.id,caption:'Actual screenshot'}});
     a=await w.save(a.id,{documentRevision:0,document:doc});
     assert.equal(a.documentRevision,1);assert.equal((await e.article(a.id)).document?.content?.[1].type,'writingReference');
-    await assert.rejects(w.save(a.id,{documentRevision:0,document:doc}),/已在其他窗口/);
+    assert.equal((await w.save(a.id,{documentRevision:0,document:doc})).documentRevision,1);
+    await assert.rejects(w.save(a.id,{documentRevision:0,document:markdownDocument('Different stale draft')}),/已在其他窗口/);
     const exported=documentText(a.document!,a.media);assert.match(exported,/Actual screenshot/);assert.doesNotMatch(exported,/Actual tutorial|It worked|引用资料/);
     assert.match(writingPrompt(a,'Revise with this material','revise'),/Actual screenshot/);
     await assert.rejects(w.save(a.id,{documentRevision:1,document:{type:'doc',content:[{type:'writingMedia',attrs:{fileId:'unrelated'}}]}}),/素材不存在/);
@@ -52,18 +53,18 @@ test('AI proposals support partial adoption, preserve embedded context and never
   }finally{await store.close();await rm(dir,{recursive:true,force:true});}
 });
 
-test('generation reads saved human edits and auto-populates only an unchanged empty document',async()=>{
+test('automatic generation preserves concurrent human edits as a proposal',async()=>{
   const dir=await mkdtemp('/private/tmp/casebench-draft-'),store=await createStore(dir);
   try{
     const profile:LocalProfile={id:'writer-api',name:'Writer',vendor:'test',model:'writer-model',adapter:'api',color:'#242832',modes:['text'],supportsTemperature:false};
     let release!:()=>void;const barrier=new Promise<void>(r=>release=r);
     const e=new EditorialService(new CasebenchService(store),{profiles:async()=>[profile],knowledge:async()=>fixtureKnowledge(),execute:async task=>{assert.match(task.case.prompt,/My hand edited text/);await barrier;return {text:citedReply('AI revision.'),usage:UNKNOWN_USAGE,logs:'',reportedModel:profile.model};}}),w=new WritingDocumentService(e);
     let a=await e.create({});a=await w.save(a.id,{documentRevision:0,document:markdownDocument('My hand edited text')});
-    a=await e.send(a.id,{purpose:'revise',text:'Improve',revision:a.revision,profileId:profile.id,model:profile.model,requestKey:randomUUID()});
+    a=await e.send(a.id,{purpose:'auto',text:'Improve',revision:a.revision,profileId:profile.id,model:profile.model,requestKey:randomUUID()});
     a=await w.save(a.id,{documentRevision:1,document:markdownDocument('Keep my simultaneous edit')});release();
     for(let n=0;n<100&&a.messages.at(-1)?.status==='pending';n++){await new Promise(r=>setTimeout(r,20));a=await e.article(a.id);}
     assert.equal(a.messages.at(-1)?.status,'complete');assert.match(documentText(a.document!),/simultaneous/);assert.equal(a.proposal!.baseRevision,1);assert.equal(a.documentRevision,2);
-    const legacy={...a,document:undefined,documentRevision:undefined};assert.match(documentText(normalizeArticle(legacy).document!),/AI revision/);assert.match(documentText(normalizeArticle(legacy).document!),/本次知识库参考/);
+    const legacy={...a,document:undefined,documentRevision:undefined};assert.match(documentText(normalizeArticle(legacy).document!),/AI revision/);assert.doesNotMatch(documentText(normalizeArticle(legacy).document!),/本次知识库参考/);
     const empty=normalizeArticle(await e.create({}));const draft=finishDocumentGeneration(empty,empty,'draft','# Initial draft\n\nFull content.','draft');assert.equal(draft.proposal,null);assert.match(documentText(draft.document!),/Full content/);
     assert.equal(revisionChanges(markdownDocument('Same'),markdownDocument('Same')).length,0);
   }finally{await store.close();await rm(dir,{recursive:true,force:true});}

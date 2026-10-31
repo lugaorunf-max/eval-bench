@@ -11,11 +11,11 @@ if(process.argv.includes('--version')){console.log('fixture-0.5');process.exit(0
 if(process.argv.includes('--help')){console.log('--model <model> supported: (auto, test-model)');process.exit(0)}
 if(process.argv.includes('--input-format')){rl.createInterface({input:process.stdin}).on('line',l=>{const m=JSON.parse(l);send({type:'control_response',response:{subtype:'success',request_id:m.request_id,response:{models:[{id:'test-model',name:'Test Model'}],currentModelId:'test-model',account:{type:'fixture'}}}})});return;}
 if(process.argv.includes('-p')){
- const prompt=process.argv.at(-1),resume=process.argv.indexOf('--resume'),s=read(),id=resume>=0?process.argv[resume+1]:randomUUID();s.calls++;s.sessions[id]??={cwd:process.cwd(),turns:[]};
+ const prompt=process.argv.at(-1),resume=process.argv.indexOf('--resume'),s=read(),id=resume>=0?process.argv[resume+1]:randomUUID();s.calls++;s.sessions[id]??={cwd:process.cwd(),turns:[]};s.sessions[id].argv=process.argv.slice(2);
  if(resume>=0&&s.sessions[id].cwd!==process.cwd())throw Error('cwd changed');
  send({type:'system',subtype:'init',session_id:id,model:'test-model'});
  if(prompt.includes('auth-error')){send({type:'result',session_id:id,is_error:true,errors:['Authentication required. Please use /login command'],usage:{input_tokens:0,output_tokens:0}});process.exit(0)}
- const text='WorkBuddy '+s.calls;s.sessions[id].turns.push(text);save(s);
+ const text=prompt.includes('html-fixture')&&!prompt.includes('non-html-fixture')?'<!doctype html><html><body><h1>Actual HTML</h1></body></html>':'WorkBuddy '+s.calls;s.sessions[id].turns.push(text);save(s);
  send({type:'assistant',uuid:randomUUID(),session_id:id,message:{content:[{type:'text',text}]}});
  send({type:'result',is_error:false,session_id:id,_requestId:randomUUID(),usage:{input_tokens:s.sessions[id].turns.length*30,output_tokens:s.sessions[id].turns.length*6,cache_read_input_tokens:s.sessions[id].turns.length*4}});process.exit(0)
 }

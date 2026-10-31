@@ -129,7 +129,7 @@
 .redesigned.sidebar-workspaces .wd-editor-bar{height:44px;min-height:44px;padding:6px 14px;gap:10px;display:flex;align-items:center}
 .redesigned.sidebar-workspaces.context-collapsed .wd-editor-bar{padding-left:52px}
 .redesigned.sidebar-workspaces .wd-document-meta{max-width:none;flex:1;min-width:40px;flex-direction:row;align-items:center;justify-content:flex-start;gap:10px}
-.redesigned.sidebar-workspaces .wd-editor-bar .wd-title{font-size:13px;min-width:0;max-width:360px}
+.redesigned.sidebar-workspaces .wd-editor-bar .wd-title{font-size:13px;min-width:0;max-width:360px;flex:1;overflow:hidden}
 .redesigned.sidebar-workspaces .wd-editor-bar .wd-save-state{font-size:10px;flex:none}
 .redesigned.sidebar-workspaces .wd-file-actions{border-left:0;gap:3px;padding:0}
 .redesigned.sidebar-workspaces .wd-insert-media{margin-left:auto;display:flex;align-items:center;gap:5px;border:1px solid var(--eval-line);border-radius:999px;padding:4px 10px;height:28px;color:var(--eval-ink);background:#fff;font-size:12px;white-space:nowrap}
@@ -223,3 +223,8 @@
 @media(prefers-reduced-motion:reduce){.redesigned.sidebar-workspaces *{scroll-behavior:auto!important;transition:none!important}}
 
 @media(max-width:380px){.redesigned.sidebar-workspaces .context-switcher .ws-content-modules>button{width:66px;padding:4px 3px;font-size:11px}}
+
+/* Keep document actions reachable beside the assistant on desktop. */
+@media(min-width:1001px){
+ .redesigned.sidebar-workspaces.context-open .wd-assistant{position:relative;top:auto;right:auto;bottom:auto;box-shadow:none}
+}

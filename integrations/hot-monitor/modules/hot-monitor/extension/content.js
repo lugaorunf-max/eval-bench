@@ -1,26 +1,11 @@
 (() => {
-  if (globalThis.__hotMonitorCollector) { globalThis.__hotMonitorCollector.open(); return; }
-  const host = document.createElement("div");
-  host.id = "hot-monitor-collector-overlay";
-  host.style.cssText = "all:initial;position:fixed;right:18px;bottom:18px;z-index:2147483647;display:block";
-  const root = host.attachShadow({mode:"closed"});
-  root.innerHTML = `<style>
-    :host{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;color:#1f2937;font-size:14px;line-height:1.5}
-    *{box-sizing:border-box}section{width:min(360px,calc(100vw - 36px));background:white;border:1px solid #dbe3ef;border-radius:16px;box-shadow:0 12px 45px #11224435;overflow:hidden}
-    header{display:flex;align-items:center;gap:8px;background:#eef4ff;padding:12px 14px}header strong{flex:1;font-size:14px}button{font:inherit;cursor:pointer;border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:9px 12px;color:#1f2937;min-height:40px}header button{min-height:32px;padding:3px 9px}button:disabled{opacity:.5;cursor:default}button:focus-visible{outline:3px solid #7aa9f8;outline-offset:2px}.body{padding:14px}h2{font-size:16px;margin:0 0 10px;overflow-wrap:anywhere}p{margin:7px 0;font-size:12px;color:#64748b;overflow-wrap:anywhere}.page{font-size:13px;color:#374151;max-height:65px;overflow:hidden}.actions{display:flex;gap:8px;margin-top:13px}.actions button{flex:1}.save{background:#2563eb;border-color:#2563eb;color:white}.status{color:#1d4ed8;min-height:18px}.error{color:#b42318}.body[hidden]{display:none}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
-  </style><section aria-label="热点监测采集助手"><header><strong>热点监测 · 采集助手</strong><button type="button" class="collapse" aria-label="收起采集助手" aria-expanded="true">−</button><button type="button" class="close" aria-label="关闭采集助手">×</button></header><div class="body"><p>当前收集选题</p><h2 class="topic"></h2><p class="page"></p><p class="hint"></p><div class="actions"><button type="button" class="save">确认并提取案例</button><button type="button" class="library">回案例库</button></div><p class="status" role="status" aria-live="polite"></p><p>保存后留在当前网页；不自动下载视频。封面仅登记链接，缺少信息时后端继续补全。</p></div></section>`;
-  const $ = selector => root.querySelector(selector);
-  let context = null, busy = false, saved = false;
-  const isWorkbench = () => ["http://localhost:43110","http://127.0.0.1:43110"].includes(location.origin) && /^\/hotspots(?:\/|$)/.test(location.pathname);
-  function render(error = "") {
-    $(".topic").textContent = context?.title || "尚未设置选题";
-    $(".page").textContent = isWorkbench() ? "当前选题已设为收集目标。到外站点击工具栏扩展即可继续收集。" : document.title || location.hostname;
-    $(".hint").textContent = context ? "外站材料会归入上面的选题。若要更换，先在工作台切换选题，再回外站打开采集助手。" : "先回工作台打开一个已确认选题，再到原文网页点击采集助手。";
-    $(".save").disabled = busy || !context || isWorkbench();
-    $(".save").textContent = busy ? "正在保存…" : saved ? "再次保存当前案例" : "确认并提取案例";
-    $(".library").textContent = context ? "回到案例库" : "回工作台选题";
-    if (error) { $(".status").textContent = error; $(".status").classList.add("error"); }
-  }
+ if(globalThis.__cexieCollect){globalThis.__cexieCollect.open();return;}
+ // Hide an already injected older UI without touching the underlying page.
+ const legacy=document.getElementById('hot-monitor-collector-overlay');if(legacy)legacy.style.display='none';
+ const host=document.createElement('div');host.id='cexie-library-collector';host.style.cssText='all:initial;position:fixed;right:16px;top:16px;z-index:2147483647';const root=host.attachShadow({mode:'closed'});
+ root.innerHTML=`<style>*{box-sizing:border-box}section{width:min(320px,calc(100vw - 32px));font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#292d36;background:white;border:1px solid #e3e5ec;border-radius:18px;box-shadow:0 8px 35px #20253b20;padding:16px}header{display:flex;justify-content:space-between;align-items:center}button,select{font:inherit;border:1px solid #e3e5ec;border-radius:20px;padding:7px 12px;background:white;color:inherit;cursor:pointer}header button{border:0;padding:0 6px}.preview{font-size:13px;max-height:65px;overflow:hidden;color:#7b8495;margin:12px 0}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{font-size:12px;padding:6px 8px;white-space:nowrap}.priority{display:flex;align-items:center;gap:6px;font-size:12px;margin:10px 0}.open{display:inline-block;font-size:12px;margin-top:8px;color:#6266f5;text-decoration:none}.actions button{flex:1}.primary{background:#191b20;color:white;border-color:#191b20}select{width:100%;margin-top:12px;font-size:12px}.connect{font-size:12px;color:#6266f5;margin-top:12px;border:0;padding:3px 0}.status{font-size:12px;color:#7b8495;overflow-wrap:anywhere;margin:8px 0 0}button:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible{outline:2px solid #676bff;outline-offset:2px}</style><section aria-label="测写收集"><header><strong>测写收集</strong><button class="close" aria-label="关闭收集面板">×</button></header><div class="preview"></div><div class="actions"><button class="primary" data-intent="media">收集素材</button><button data-intent="case">收集案例</button><button data-intent="case" data-analyze="true">收集并解析</button></div><select aria-label="关联到"><option value="">全局库 · 不关联文章</option></select><label class="priority"><input type="checkbox"/>标为重点</label><a class="open" target="_blank" rel="noreferrer" hidden>查看收集结果</a><button class="connect">连接此 X 标签供 AI 使用</button><p class="status" role="status"></p></section>`;
+ const $=s=>root.querySelector(s);let busy=false;$('.preview').textContent=document.title;$('.connect').hidden=!/^https:\/\/x\.com\//.test(location.href);$('.close').onclick=()=>host.style.display='none';
+ const send=async v=>{const r=await chrome.runtime.sendMessage(v);if(!r?.ok)throw Error(r?.error||'操作未完成');return r;};
   function xPostMetadata() {
     if (!/^(?:(?:www|mobile|m)\.)?(?:x|twitter)\.com$/i.test(location.hostname)) return null;
     const current = /^\/[^/]+\/status\/(\d+)(?:\/(?:photo|video)\/\d+)?\/?$/.exec(location.pathname);
@@ -51,41 +36,11 @@
     const meta = key => [...document.querySelectorAll("meta")].find(node => [node.getAttribute("property"),node.getAttribute("name")].some(value => value?.toLowerCase() === key))?.getAttribute("content")?.trim() || "";
     return {url:location.href,pageTitle:document.title,heading:document.querySelector("h1")?.textContent??"",title:meta("og:title") || meta("twitter:title") || document.title,author:meta("author") || meta("article:author"),summary:meta("og:description") || meta("description") || meta("twitter:description"),publishedAt:meta("article:published_time"),cover:meta("og:image") || meta("twitter:image")};
   }
-  $(".save").addEventListener("click",async event => {
-    if (!event.isTrusted || busy || !context || isWorkbench()) return;
-    busy = true; $(".status").textContent = "正在保存原文链接与可用标题封面…"; $(".status").classList.remove("error"); render();
-    try {
-      const result = await chrome.runtime.sendMessage({type:"HM_SAVE",expectedEventId:context.eventId,item:metadata()});
-      if (result?.code === "context-changed") { context = result.context || null; saved = false; }
-      if (!result?.ok) throw new Error(result?.error || "保存未完成。");
-      saved = true;
-      $(".status").textContent = (result.existing ? "案例已存在，原有人工备注和核验状态保留。" : "已保存到案例库，继续浏览即可。") + (result.metadataQueued ? " 正在后台补全原文信息。" : "") + (result.metadataFailed ? " 链接已保存，后台提取未排入；可到案例库重新提取。" : "");
-    } catch (error) { $(".status").textContent = error.message || "保存失败，请重新打开扩展。"; $(".status").classList.add("error"); }
-    finally { busy = false; render(); }
-  });
-  $(".library").addEventListener("click",async event => {
-    if (!event.isTrusted) return;
-    try { const result = await chrome.runtime.sendMessage({type:"HM_OPEN_LIBRARY"}); if (!result?.ok) throw new Error(result?.error); }
-    catch (error) { $(".status").textContent = error.message || "请手动打开热点监测工作台。"; $(".status").classList.add("error"); }
-  });
-  $(".close").addEventListener("click",() => { host.style.display = "none"; });
-  $(".collapse").addEventListener("click",() => { const collapsed = !$(".body").hidden; $(".body").hidden = collapsed; $(".collapse").textContent = collapsed ? "+" : "−"; $(".collapse").setAttribute("aria-expanded",String(!collapsed)); $(".collapse").setAttribute("aria-label",collapsed ? "展开采集助手" : "收起采集助手"); });
-  function open() { host.style.display = "block"; $(".body").hidden = false; $(".collapse").textContent = "−"; $(".collapse").setAttribute("aria-expanded","true"); $(".collapse").setAttribute("aria-label","收起采集助手"); }
-  globalThis.__hotMonitorCollector = {open};
-  let pageAddress=location.href,pageTitle=document.title;
-  const updatePage=()=>{
-    if(location.href===pageAddress&&document.title===pageTitle)return;
-    if(location.href!==pageAddress){saved=false;$(".status").textContent="";$(".status").classList.remove("error");}
-    pageAddress=location.href;pageTitle=document.title;render();
-  };
-  window.addEventListener("popstate",updatePage);
-  if(document.head)new MutationObserver(updatePage).observe(document.head,{childList:true,subtree:true,characterData:true});
-  chrome.runtime.onMessage.addListener((message,sender) => {
-    if (sender.id !== chrome.runtime.id) return;
-    if (message.type === "HM_HIDE") { host.style.display = "none"; return; }
-    if (message.type !== "HM_SHOW") return;
-    context = message.context || null; saved = false; $(".status").textContent = ""; $(".status").classList.remove("error"); open(); render(message.error);
-  });
-  document.documentElement.append(host);
-  render();
+
+ async function targets(){try{const data=await send({type:'HM_LIBRARY_TARGETS'});for(const [kind,label]of [['articles','文章']]){const group=document.createElement('optgroup');group.label=label;for(const v of data[kind]||[]){const o=document.createElement('option');o.value=(kind==='articles'?'article:':'event:')+v.id;o.textContent=v.title;group.append(o);}root.querySelector('select').append(group);}if(data.currentArticleId)root.querySelector('select').value='article:'+data.currentArticleId;}catch(e){$('.status').textContent=e.message;}}
+ let priorityTouched=false;root.querySelector('.priority input').addEventListener('change',()=>priorityTouched=true);root.querySelector('[data-analyze]').addEventListener('mouseenter',()=>{if(!priorityTouched)root.querySelector('.priority input').checked=true;});
+ root.querySelectorAll('[data-intent]').forEach(button=>button.addEventListener('click',async event=>{if(!event.isTrusted||busy)return;busy=true;if(button.dataset.analyze==='true'&&!priorityTouched)root.querySelector('.priority input').checked=true;root.querySelectorAll('[data-intent]').forEach(b=>b.disabled=true);$('.status').textContent='正在保存…';try{const r=await send({type:'HM_LIBRARY_SAVE',intent:button.dataset.intent,analyze:button.dataset.analyze==='true',priority:root.querySelector('.priority input').checked,destination:root.querySelector('select').value,item:metadata()});$('.status').textContent=r.message;const article=root.querySelector('select').value.replace(/^article:/,'');$('.open').href='http://127.0.0.1:43110/'+(root.querySelector('select').value.startsWith('article:')?'articles/'+article:button.dataset.intent==='case'?'?library=candidate':'materials');$('.open').hidden=false;const job=r.result?.job||(r.result?.kind?r.result:null);if(job?.id){const timer=setInterval(async()=>{if(!host.isConnected||host.style.display==='none'){clearInterval(timer);return;}try{const state=(await send({type:'HM_LIBRARY_JOB',id:job.id})).job;$('.status').textContent=state.error||state.phase||(state.status==='complete'?'处理完成':'处理中');if(state.status!=='running')clearInterval(timer);}catch{clearInterval(timer);}},2500);}}catch(e){$('.status').textContent=e.message;}finally{busy=false;root.querySelectorAll('[data-intent]').forEach(b=>b.disabled=false);}}));
+ $('.connect').addEventListener('click',async event=>{if(!event.isTrusted)return;try{const r=await send({type:'HM_LIBRARY_CONNECT'});$('.status').textContent=r.message;}catch(e){$('.status').textContent=e.message;}});
+ function open(){host.style.display='block';$('.preview').textContent=document.title;}
+ globalThis.__cexieCollect={open};chrome.runtime.onMessage.addListener(message=>{if(message.type==='HM_LIBRARY_SHOW')open();});document.documentElement.append(host);void targets();
 })();

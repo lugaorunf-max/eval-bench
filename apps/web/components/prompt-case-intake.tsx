@@ -1,0 +1,12 @@
+'use client';
+import {useState} from 'react';
+import type {CaseRecord,FileRecord} from '@/packages/contracts';
+import type {CandidateCase} from '@/packages/contracts/library';
+import {editorialRequest as request,EditorialSheet as Sheet} from './editorial-ui';
+import {useArticleScope} from './article-scope';
+import {CaseAnalysisPanel} from './media-workflow-controls';
+export function PromptCaseIntake({close,saved,manual}:{close:()=>void;saved:(c:CaseRecord)=>void|Promise<void>;manual:(draft:{title:string;prompt:string;files:File[]})=>void}){
+ const {articleId}=useArticleScope(),[title,setTitle]=useState(''),[prompt,setPrompt]=useState(''),[files,setFiles]=useState<File[]>([]),[candidate,setCandidate]=useState<CandidateCase|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ async function stage(){setBusy(true);setError('');try{const mediaIds=[];for(const file of files){const form=new FormData();form.set('file',file);const stored=await request<FileRecord>('editorial/files',form);mediaIds.push(stored.id);}setCandidate(await request<CandidateCase>('editorial/library/prompt',{title,prompt,mediaIds,...(articleId?{articleId}:{})}));window.dispatchEvent(new Event('casebench-library-changed'));}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <Sheet title="新建案例" close={close}><div className="ed-dialog-body ed-form">{!candidate?<><label>名称（选填）<input value={title} maxLength={100} onChange={e=>setTitle(e.target.value)}/></label><label>提示词<textarea aria-label="新案例提示词" rows={8} value={prompt} maxLength={100000} onChange={e=>setPrompt(e.target.value)}/></label><label>输入附件（选填）<input type="file" multiple onChange={e=>setFiles([...e.target.files||[]])}/></label><button className="text-btn" onClick={()=>manual({title,prompt,files})}>手动设置详细参数</button></>:<CaseAnalysisPanel lead={{...candidate,eventId:'',candidate:true}} notify={()=>{}} refreshCases={async()=>{const latest=await request<(CandidateCase&{savedCaseId?:string})[]>('editorial/library/candidates');const item=latest.find(c=>c.id===candidate.id);if(item?.savedCaseId){const c=(await request<CaseRecord[]>('cases')).find(c=>c.id===item.savedCaseId);if(c)await saved(c);}}}/>}{error&&<p role="alert" className="ed-error">{error}</p>}</div><footer><button className="ed-button" onClick={close}>{candidate?'保留在待筛选，关闭':'取消'}</button>{!candidate&&<button className="ed-button ed-primary" disabled={busy||!prompt.trim()} onClick={()=>void stage()}>{busy?'正在保存…':'继续解析标签'}</button>}</footer></Sheet>;
+}

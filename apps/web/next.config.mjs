@@ -5,7 +5,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 process.env.CASEBENCH_ROOT ??= root;
 
 export default {
-  serverExternalPackages: ['@electric-sql/pglite', 'pg', 'archiver', 'ffmpeg-static'],
+  ...(process.env.CASEBENCH_NEXT_DIST?{distDir:process.env.CASEBENCH_NEXT_DIST}:{}),
+  serverExternalPackages: ['@electric-sql/pglite', 'pg', 'archiver', 'ffmpeg-static', 'playwright', 'playwright-core'],
   outputFileTracingRoot: root,
   poweredByHeader: false,
   async headers() {

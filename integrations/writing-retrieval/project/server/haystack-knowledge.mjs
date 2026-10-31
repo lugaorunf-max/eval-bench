@@ -48,6 +48,7 @@ export function createHaystackKnowledge({client=createHaystackClient(),onProgres
  async function retrieve(library,input={},limit=12){
   const current=await synchronize(library),query=retrievalQuery(input),topic=query.topic.map(part=>part.text).filter(Boolean).join('\n').slice(0,6000),task=query.pattern.map(part=>part.text).filter(Boolean).join('\n').slice(0,2400)||topic;
   const articles=await runQuery({revision:library.revision,query:topic,semantic_query:balancedRagQuery(query.topic),genre:input.genre||'',kinds:['source','analysis'],limit:Math.max(1,Math.min(limit,30)),minimum_score:minimumScore});
+  if(input.mode==='articles')return {templates:[],blueprints:[],guidance:[],examples:convert(articles,current).map(example),retrieval:{...info(),rerankApplied:Boolean(articles.meta?.rerankApplied)},revision:library.revision};
   const structures=await runQuery({revision:library.revision,query:task,semantic_query:balancedRagQuery(query.topic),genre:input.genre||'',kinds:['template','note'],limit:20,minimum_score:-100});
   let blueprints=[];
   if(input.genre==='资讯'&&(library.blueprints||[]).length){

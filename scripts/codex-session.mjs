@@ -1,8 +1,10 @@
+import {callMediaTool} from './media-tool-client.mjs';
 import { writeFile, rename, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { findAgent,rpcClient,usageDifference,ZERO_TOKEN_TOTAL,normalizeUsage,capture } from './agent-runtime.mjs';
 
 export async function runCodexSession(task,prompt){
+ const scopedConfig=task.toolSession?{config:{'features.shell_tool':false,'features.unified_exec':false,'features.view_image':false,'features.multi_agent':false}}:{};
  const dir=task.directory||process.cwd(),progressFile=path.join(dir,'live.json');
  const progress={threadId:task.conversation?.threadId||null,turnId:null,phase:'connecting',model:null,updatedAt:new Date().toISOString(),events:[],outputText:'',usage:normalizeUsage(null),usageRaw:{},activeDurationMs:0};
  let saving=Promise.resolve(),nativeTurnId=null,startedAt=null,endedAt=null,nativeDuration=null,done=false,submitted=false,cancelled=false,baseline=progress.threadId?(task.conversation?.previousTotal||null):{...ZERO_TOKEN_TOTAL};
@@ -10,7 +12,7 @@ export async function runCodexSession(task,prompt){
  const event=text=>{progress.events=[...progress.events,{at:new Date().toISOString(),text:String(text).replace(/Bearer\s+[^\s"']+/gi,'Bearer [REDACTED]').slice(0,2000)}].slice(-40);save()};
  const installation=await findAgent('gpt');if(!installation)throw new Error('未发现 GPT 本机执行器，请检查安装或设置 CASEBENCH_GPT_PROGRAM');
  let agentVersion;try{agentVersion=(await capture(installation.program,[...installation.args,'--version'],{timeout:3000})).split('\n').at(-1)?.slice(0,200)}catch{}
- const client=rpcClient(installation,{cwd:dir,timeout:20000});let resolve,reject;const completion=new Promise((a,b)=>{resolve=a;reject=b});completion.catch(()=>{});
+ const client=rpcClient(installation,{cwd:dir,timeout:20000,experimentalApi:!!task.toolSession,onServerRequest:async(method,params)=>{if(method!=='item/tool/call'||!task.toolSession)throw Error('未授权的工具请求');const result=await callMediaTool(task.toolSession,params.tool,params.arguments);event('素材工具：'+params.tool);return {success:!result.isError,contentItems:result.content.map(c=>c.type==='text'?{type:'inputText',text:c.text}:{type:'inputImage',imageUrl:'data:'+c.mimeType+';base64,'+c.data})};}});let resolve,reject;const completion=new Promise((a,b)=>{resolve=a;reject=b});completion.catch(()=>{});
  const messages=new Map();
  const render=()=>{const all=[...messages.values()];const finals=all.filter(m=>m.phase==='final_answer');progress.outputText=(finals.length?finals:all).map(m=>m.text).join('\n\n').slice(-2000000);};
  const clean=raw=>Object.fromEntries(Object.entries(raw||{}).filter(([k,v])=>['inputTokens','outputTokens','cachedInputTokens','cacheWriteInputTokens','reasoningOutputTokens','totalTokens'].includes(k)&&Number.isSafeInteger(v)&&v>=0));
@@ -28,6 +30,8 @@ export async function runCodexSession(task,prompt){
   if(m.method==='item/started'&&p.item?.type==='agentMessage')messages.set(p.item.id,{text:p.item.text||'',phase:p.item.phase});
   if(m.method==='item/agentMessage/delta'){const old=messages.get(p.itemId)||{text:'',phase:null};messages.set(p.itemId,{...old,text:old.text+(p.delta||'')});render();save();}
   if(m.method==='item/completed'&&p.item?.type==='agentMessage'){messages.set(p.item.id,{text:p.item.text||'',phase:p.item.phase});render();save();}
+  if(m.method==='item/started'&&p.item&&!['agentMessage','reasoning','userMessage'].includes(p.item.type))event('执行活动：'+(p.item.title||p.item.name||p.item.type));
+  if(m.method==='item/completed'&&p.item?.type==='reasoning'&&Array.isArray(p.item.summary)){const summary=p.item.summary.filter(x=>typeof x==='string').join(' ');if(summary)event('公开推理摘要：'+summary);}
   if(m.method==='model/rerouted'&&p.toModel){progress.model=p.toModel;event('Agent 返回实际执行模型');}
   if(m.method==='turn/completed'&&submitted){
    if(nativeTurnId&&p.turn.id!==nativeTurnId)return;
@@ -43,10 +47,10 @@ export async function runCodexSession(task,prompt){
   event('正在连接本机 Agent');await client.initialize();
   if(progress.threadId){
    const r=await client.request('thread/read',{threadId:progress.threadId,includeTurns:false});if(r.thread.status?.type==='active')throw new Error('这段会话正在桌面端执行，请等待完成后再发送');
-   const resumed=await client.request('thread/resume',{threadId:progress.threadId,excludeTurns:true,...(task.model.model!=='default'?{model:task.model.model}:{})});progress.model=resumed.model||progress.model;
+   const resumed=await client.request('thread/resume',{threadId:progress.threadId,excludeTurns:true,...scopedConfig,...(task.model.model!=='default'?{model:task.model.model}:{})});progress.model=resumed.model||progress.model;
   }else{
    const account=await client.request('account/read',{refreshToken:false});if(!account.account)throw new Error('请先登录 GPT 本机执行器');
-   const started=await client.request('thread/start',{...(task.model.model&&task.model.model!=='default'?{model:task.model.model}:{}),cwd:dir,ephemeral:false,sandbox:'read-only',approvalPolicy:'on-request',threadSource:'user',serviceName:'casebench'});
+   const started=await client.request('thread/start',{...(task.model.model&&task.model.model!=='default'?{model:task.model.model}:{}),cwd:dir,ephemeral:false,...scopedConfig,sandbox:'read-only',approvalPolicy:'on-request',threadSource:'user',serviceName:'casebench',...(task.toolSession?{dynamicTools:task.toolSession.tools.map(t=>({...t,type:'function',deferLoading:false}))}:{})});
    progress.threadId=started.thread.id;progress.model=started.model||progress.model;await client.request('thread/name/set',{threadId:progress.threadId,name:`网页测评 · ${task.case.title}`.slice(0,100)});
   }
   event(task.conversation?'原会话已恢复':'持久会话已建立');if(cancelled)throw new Error('用户停止了本轮执行');

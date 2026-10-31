@@ -60,3 +60,6 @@ export const Upload=glyph('Upload');
 export const Video=glyph('Video');
 export const Wallet=glyph('Wallet');
 export const X=glyph('X');
+
+export const Trash2=glyph('Trash2');
+export const RotateCcw=glyph('RotateCcw');

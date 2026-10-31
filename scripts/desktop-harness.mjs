@@ -1,16 +1,19 @@
+import {taskPrompt} from './task-prompt.mjs';
 // Text-only connectivity adapter for the CLIs bundled with the installed apps.
 import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import {saveNativeHtml} from './native-html.mjs';
 import { runCodexSession } from './codex-session.mjs';
 
 async function main() {
 const kind = process.argv[2];
 if (!['workbuddy', 'chatgpt-codex', 'chatgpt-session'].includes(kind)) throw new Error('未知的本机工具');
 const task = JSON.parse(await readFile(process.env.CASEBENCH_TASK_FILE, 'utf8'));
-if (task.case.executionMode !== 'text' || task.case.artifactType !== 'copy' || task.inputPaths.length) throw new Error('连通性配置仅支持无附件的文案任务。');
-const prompt = `${task.case.prompt}\n${task.case.instructions || ''}\n\n只返回正文。此次是文本连通性测试，不调用工具、不读取其他文件、不写文件。`;
-if (kind === 'chatgpt-session') { process.stdout.write(await runCodexSession(task, prompt)); return; }
+const html=kind==='chatgpt-session'&&task.case.executionMode==='html'&&task.case.artifactType==='web';
+if ((!html&&(task.case.executionMode!=='text'||task.case.artifactType!=='copy'))||task.inputPaths.length)throw Error('此适配支持无附件文案或网页任务。');
+const prompt = taskPrompt(task);
+if (kind === 'chatgpt-session') { const text=await runCodexSession(task,prompt);await saveNativeHtml(task,text);process.stdout.write(text);return; }
 const outputFile = path.join(task.outputDirectory, 'response.md');
 const env = { ...process.env };
 let program, args;

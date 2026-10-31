@@ -6,6 +6,7 @@ import {
   previewSource,
   createSource,
   updateSource,
+  sourceIdentity,
 } from "@aihot/backend/admin/sources";
 import { mpHistory } from "@aihot/backend/providers/dajiala";
 import { completeReceipt } from "@aihot/backend/providers/receipts";
@@ -297,7 +298,7 @@ export async function addCandidate(draft:{name:string;platform:string;kind:strin
   const name=(prefix && !draft.name.startsWith(prefix)?prefix:"")+draft.name.trim();
   const key=handle?"x:"+handle.toLowerCase():nameKey(name);
   const id="hm-"+digest(key).slice(0,16);
-  const existing=(await catalogue()).find(c=>c.id===id || (draft.config?.feedUrl && c.config?.feedUrl===draft.config.feedUrl));
+  const existing=(await catalogue()).find(c=>c.id===id || (draft.config&&c.config&&c.kind===draft.kind&&sourceIdentity(c.kind,c.config)===sourceIdentity(draft.kind,draft.config)&&sourceIdentity(draft.kind,draft.config)!==null));
   if(existing) return {created:false,source:existing};
   const c:Candidate={id,name,platform:draft.platform,registered:true,kind:draft.kind,handle,originalExample:draft.originalExample?canonicalUrl(draft.originalExample):null,example:"",priority:!!draft.priority,status:"candidate",config:draft.config??{},tier:draft.tier??"T2",fields:draft.fields??[],sourceRole:draft.sourceRole??"待分类",classificationMethod:"manual"};
   const inserted=await sql`INSERT INTO hm_source_checks(id,data) VALUES(${id},${sql.json(c as never)}) ON CONFLICT(id) DO NOTHING RETURNING id`;

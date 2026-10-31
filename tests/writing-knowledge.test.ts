@@ -45,32 +45,29 @@ test('structures, outlines and drafts cite the actual unanalysed article read be
    response=JSON.stringify({...value,knowledgeCitations:[fixtureCitation]});const a=await generate(request),m=a.messages.at(-1)!;
    assert.equal(m.status,'complete',m.error);assert.match(m.text,/本次知识库参考/);assert.match(m.text,/有正文但尚未拆解的写法样本/);assert.match(m.text,/未拆解/);assert.match(m.text,/https:\/\/example.com\/writing-source/);
    assert.equal((m.knowledge as any).citations[0].articleId,knowledgeArticle.id);
-   if(value.action==='edit')assert.match(documentText(a.document!),/本次知识库参考/);
+   if(value.action==='edit'){assert.doesNotMatch(documentText(a.document!),/本次知识库参考/);assert.ok(a.messages.at(-1)?.documentMarkdown);}
   }
-  response=JSON.stringify({action:'edit',markdown:'伪造引用的文章',knowledgeCitations:[{...fixtureCitation,articleId:'NOT-READ'}]});const invalid=await generate('生成文章');assert.equal(invalid.messages.at(-1)?.status,'failed');assert.equal(documentText(invalid.document!),'');
-  response=JSON.stringify({action:'edit',markdown:'伪造原文的文章',knowledgeCitations:[{...fixtureCitation,quote:'这是库中不存在的引文'}]});assert.equal((await generate('生成文章')).messages.at(-1)?.status,'failed');assert.equal(calls,5);
+  response=JSON.stringify({action:'edit',markdown:'伪造引用的文章',knowledgeCitations:[{...fixtureCitation,articleId:'NOT-READ'}]});const beforeInvalid=calls,invalid=await generate('生成文章');assert.equal(calls-beforeInvalid,2,'invalid citations receive one repair, then stop');assert.equal(invalid.messages.at(-1)?.status,'failed');assert.equal(documentText(invalid.document!),'');
+  response=JSON.stringify({action:'edit',markdown:'伪造原文的文章',knowledgeCitations:[{...fixtureCitation,quote:'这是库中不存在的引文'}]});assert.equal((await generate('生成文章')).messages.at(-1)?.status,'failed');assert.equal(calls,7);
  }finally{await store.close();await rm(dir,{recursive:true,force:true});}
 });
 
-test('a first news outline uses Markdown with citations while a subsequent full draft still requires material planning',async()=>{
- const dir=await mkdtemp('/private/tmp/writing-news-outline-'),store=await createStore(dir);
+test('news outlines and full drafts go straight into the document without a fixed blueprint',async()=>{
+ const dir=await mkdtemp('/private/tmp/writing-news-free-'),store=await createStore(dir);
  const profile:LocalProfile={id:'qa-outline',name:'QA',vendor:'QA',model:'fixture',adapter:'api',color:'#111111',modes:['text'],supportsTemperature:false};
- let response=citedReply(JSON.stringify({action:'edit',target:'document',markdown:'# Genie 4 大纲\n\n## 核心变化\n\n先核对发布信息。\n\n【素材位：官方发布公告及具体变化】'}));
- const blueprint={id:'NEWS-OUTLINE',title:'发布要点分块',structureId:'N2',revision:'outline-r1',sourceArticleIds:[knowledgeArticle.id],nodes:[]};
- const e=new EditorialService(new CasebenchService(store),{profiles:async()=>[profile],knowledge:async()=>({...fixtureKnowledge(),context:{...fixtureKnowledge().context,blueprints:[blueprint]}}),execute:async()=>({text:response,usage:UNKNOWN_USAGE,logs:'',reportedModel:profile.model})});
+ let response=citedReply(JSON.stringify({action:'edit',target:'document',reply:'已整理大纲。',markdown:'# 大纲\n\n围绕本篇消息组织。'}));
+ const e=new EditorialService(new CasebenchService(store),{profiles:async()=>[profile],knowledge:async()=>({...fixtureKnowledge(),context:{...fixtureKnowledge().context,blueprints:[{id:'BLUEPRINT_SENTINEL'}],templates:[{name:'TEMPLATE_SENTINEL'}]}}),execute:async task=>{assert.doesNotMatch(task.case.prompt,/BLUEPRINT_SENTINEL|TEMPLATE_SENTINEL|LEGACY_TEMPLATE_SENTINEL/);return {text:response,usage:UNKNOWN_USAGE,logs:'',reportedModel:profile.model};}});
  try{
-  let a=await e.create({kind:'news'});
+  let a=await e.create({kind:'news',template:'LEGACY_TEMPLATE_SENTINEL'});
   async function send(text:string){a=await e.send(a.id,{text,purpose:'auto',profileId:profile.id,model:profile.model,revision:a.revision,requestKey:randomUUID()});for(let i=0;i<150&&a.messages.at(-1)?.status==='pending';i++){await new Promise(r=>setTimeout(r,15));a=await e.article(a.id);}return a.messages.at(-1)!;}
-  let m=await send('匹配结构，生成下面这个选题的大纲\n\nGoogle 发布世界模型 Genie 4，支持实时操控与原生音频');
-  assert.equal(m.status,'complete',m.error);assert.equal(m.writingStage,'planning');assert.match(documentText(a.document!),/Genie 4 大纲/);assert.match(documentText(a.document!),/本次知识库参考/);assert.equal(a.versions!.at(-1)!.label,'结构与大纲');assert.equal(a.proposal,null);
-  m=await send('先完善文章大纲，不要写正文');assert.equal(m.status,'complete',m.error);
-  response=citedReply(JSON.stringify({action:'edit',markdown:'# 未按计划组织的全文\n\n这是一篇普通长文。'}));
-  m=await send('大纲确认了，按这个大纲生成完整文章');assert.equal(m.status,'failed');assert.match(m.error||'',/叙事素材计划/);assert.match(documentText(a.document!),/Genie 4 大纲/);
-  m=await send('确认');assert.equal(m.status,'failed');assert.match(m.error||'',/叙事素材计划/);
-  a=await e.create({kind:'news'});response=citedReply(JSON.stringify({action:'edit',markdown:'# 结构与大纲\n\n先确定结构及各步素材。'}));m=await send('直接生成一篇完整文章');assert.equal(m.status,'complete',m.error);assert.equal(m.writingStage,'planning');
-  response=citedReply(JSON.stringify({action:'edit',markdown:'没有素材计划的初稿'}));m=await send('这个大纲可以，开始写');assert.equal(m.status,'failed');assert.match(m.error||'',/叙事素材计划/);
+  let m=await send('先给这条消息一个大纲');assert.equal(m.status,'complete',m.error);assert.equal(m.writingStage,'planning');assert.match(documentText(a.document!),/围绕本篇消息/);assert.doesNotMatch(documentText(a.document!),/本次知识库参考|已整理大纲/);assert.match(m.text,/已整理大纲/);assert.equal(a.proposal,null);
+  response=citedReply(JSON.stringify({action:'edit',reply:'已写入全文。',markdown:'# 正文\n\n这是根据当前消息写成的短资讯。'}));
+  m=await send('按第一个方向直接写完整文章');assert.equal(m.status,'complete',m.error);assert.match(documentText(a.document!),/短资讯/);assert.doesNotMatch(documentText(a.document!),/已写入全文|本次知识库参考/);assert.doesNotMatch(m.text,/短资讯/);assert.match(m.documentMarkdown||'',/短资讯/);assert.equal(a.proposal,null);assert.ok(a.versions?.some(v=>v.label==='AI 修改前'));
+  response=citedReply(JSON.stringify({action:'reply',reply:'可以把开头写得更具体。'}));const before=documentText(a.document!);m=await send('你觉得这个开头如何？');assert.equal(m.status,'complete');assert.equal(documentText(a.document!),before);
+  a=await e.create({kind:'news'});response=citedReply(JSON.stringify({action:'edit',reply:'已生成正文。',markdown:'# 直接正文\n\n只按本篇材料展开，不强迫先选方向。'}));m=await send('直接写一篇完整文章');assert.equal(m.status,'complete',m.error);assert.equal(m.writingStage,'drafting');assert.match(documentText(a.document!),/直接正文/);
  }finally{await store.close();await rm(dir,{recursive:true,force:true});}
 });
+
 test('writing uses the private knowledge bridge once and retains editor persistence, metrics and isolated article context',async()=>{
  const dir=await mkdtemp('/private/tmp/writing-knowledge-'),old=process.env.CASEBENCH_DATA_DIR;process.env.CASEBENCH_DATA_DIR=dir;const store=await createStore(dir);let requests:any[]=[],fail=false,calls=0,prompt='';
  const server=createServer(async(req,res)=>{assert.equal(req.headers.authorization,'Bearer test-knowledge-token-123456789');res.setHeader('content-type','application/json');if(req.url==='/health'){res.end(JSON.stringify({ready:true}));return;}let body='';for await(const c of req)body+=c;requests.push(JSON.parse(body));if(fail){res.statusCode=503;res.end('{}');return;}res.end(JSON.stringify({revision:'vault-r1',engine:'local-bm25-rrf-v1',articles:[knowledgeArticle],templates:[{id:'A1',name:'叙事顺序'}],examples:[{id:'a1',contentExcerpt:'WRITING_PATTERN_ONLY',evidenceLevel:'candidate'}],writingSkill:{instructions:'INLINE_RULES'}}));});server.listen(0,'127.0.0.1');await once(server,'listening');
@@ -80,7 +77,7 @@ test('writing uses the private knowledge bridge once and retains editor persiste
   const service=new EditorialService(new CasebenchService(store),{profiles:async()=>[profile],execute:async input=>{calls++;prompt=input.case.prompt;return {text:citedReply(JSON.stringify({action:'reply',reply:'依据资料讨论'})),usage:UNKNOWN_USAGE,exitCode:0,reportedModel:profile.model,logs:''};}});
   const source=await service.addSource({title:'本篇事实',summary:'CURRENT_FACTS'}),other=await service.addSource({title:'别篇资料',summary:'OTHER_ARTICLE_FACTS'});const a=await service.create({references:[{kind:'source',id:source.id}]});await service.create({references:[{kind:'source',id:other.id}]});
   async function send(revision:number){let next=await service.send(a.id,{text:'请讨论资讯的写法',profileId:profile.id,model:profile.model,requestKey:randomUUID(),revision,purpose:'auto'});for(let i=0;i<100&&next.messages.at(-1)?.status==='pending';i++){await new Promise(r=>setTimeout(r,20));next=await service.article(a.id);}return next;}
-  const done=await send(0);assert.equal(done.messages.at(-1)?.status,'complete');assert.equal(calls,1);assert.equal(requests.length,1);assert.match(prompt,/WRITING_PATTERN_ONLY/);assert.match(prompt,/INLINE_RULES/);assert.match(prompt,/CURRENT_FACTS/);assert.doesNotMatch(prompt,/OTHER_ARTICLE_FACTS/);assert.equal(done.messages.at(-1)?.knowledge?.revision,'vault-r1');assert.ok(done.messages.at(-1)?.durationMs!=null);
+  const done=await send(0);assert.equal(done.messages.at(-1)?.status,'complete');assert.equal(calls,1);assert.equal(requests.length,1);assert.match(prompt,/先明确问题/);assert.doesNotMatch(prompt,/WRITING_PATTERN_ONLY/);assert.equal(requests[0].mode,'articles');assert.match(prompt,/INLINE_RULES/);assert.match(prompt,/CURRENT_FACTS/);assert.doesNotMatch(prompt,/OTHER_ARTICLE_FACTS/);assert.equal(done.messages.at(-1)?.knowledge?.revision,'vault-r1');assert.ok(done.messages.at(-1)?.durationMs!=null);
   fail=true;const failed=await send(done.revision);assert.equal(failed.messages.at(-1)?.status,'failed');assert.equal(calls,1);assert.match(failed.messages.at(-1)?.error||'',/知识库/);assert.equal(failed.messages[1].text,done.messages[1].text);
  }finally{server.closeAllConnections();await new Promise<void>(r=>server.close(()=>r()));await store.close();await rm(dir,{recursive:true,force:true});if(old===undefined)delete process.env.CASEBENCH_DATA_DIR;else process.env.CASEBENCH_DATA_DIR=old;}
 });
@@ -116,52 +113,9 @@ test('follow-up retrieval keeps the article topic and selected direction instead
  }finally{server.closeAllConnections();await new Promise<void>(r=>server.close(()=>r()));await rm(dir,{recursive:true,force:true});if(old===undefined)delete process.env.CASEBENCH_DATA_DIR;else process.env.CASEBENCH_DATA_DIR=old;}
 });
 
-test('a news draft places missing evidence between setup and dependent analysis in one generation',async()=>{
- const dir=await mkdtemp('/private/tmp/writing-materials-'),store=await createStore(dir);
- const profile:LocalProfile={id:'qa-writer',name:'QA',vendor:'QA',model:'fixture',adapter:'api',color:'#111111',modes:['text'],supportsTemperature:false};
- const blueprint={id:'NEWS-IMPACT',title:'事件影响展开',structureId:'N3',revision:'blueprint-r1',sourceArticleIds:[knowledgeArticle.id],nodes:[
-  {id:'opening',title:'事件',move:'交代已知消息',beats:[
-   {id:'setup',type:'narration',instruction:'简短引出消息',dependsOn:[]},
-   {id:'announcement',type:'material',instruction:'本次官方公告',kind:'fact',role:'消息依据',required:true,dependsOn:[]},
-   {id:'meaning',type:'observation',instruction:'解释公告实际改变了什么',dependsOn:['announcement']}]},
-  {id:'comparison',title:'商业模式',move:'用数据检验影响',beats:[
-   {id:'question',type:'narration',instruction:'提出经营问题',dependsOn:[]},
-   {id:'data',type:'material',instruction:'经营数据及可比口径',kind:'data',role:'先展示数据再判断影响',required:true,dependsOn:[]},
-   {id:'judgment',type:'observation',instruction:'原文 P11 的谈判未定，原因未明',dependsOn:['data']},
-   {id:'ending',type:'transition',instruction:'留下待观察的问题',dependsOn:[]}]}]};
- let response:any,calls=0;
- const e=new EditorialService(new CasebenchService(store),{profiles:async()=>[profile],knowledge:async()=>({context:{templates:[],examples:[],blueprints:[blueprint],articles:[knowledgeArticle,{...knowledgeArticle,id:'KB-OTHER',title:'另一篇已读正文'}]},instructions:'保持自然表达，不改变素材缺口。',revision:'vault-r1',examples:0,engine:'fixture'}),execute:async()=>{calls++;return {text:citedReply(JSON.stringify(response)),usage:UNKNOWN_USAGE,logs:'',reportedModel:profile.model};}});
- async function planned(body:unknown){const article=await e.create(body);return e.mutate<WritingArticle>(article.id,'article',a=>({...a,document:{type:'doc',content:[{type:'paragraph'}]},messages:[{id:'planning-complete',role:'assistant',status:'complete',purpose:'discuss',writingStage:'planning',text:'已匹配结构并完成大纲：引出事件、展示证据、分析影响。',createdAt:new Date().toISOString()}]}));}
- try{
-  const source=await e.addSource({title:'当前公告',summary:'CURRENT_ANNOUNCEMENT'});
-  let a=await planned({kind:'news',references:[{kind:'source',id:source.id}]});
-  response={action:'edit',target:'document',narrative:{plan:{blueprintId:blueprint.id,blueprintRevision:blueprint.revision,nodeInstructions:[{nodeId:'opening',instruction:'交代本次公告',heading:''},{nodeId:'comparison',instruction:'讨论业务影响前先展示证据',heading:'商业模式的检验'}],materialBindings:[{materialId:'announcement',referenceIds:[a.references[0].id],requirement:'本次官方公告'},{materialId:'data',referenceIds:[],requirement:'从本次文件提取收入、成本和期间口径，并列一项同口径行业对照'}]},draft:{title:'事件的影响',structureId:'N3',sourceIds:[a.references[0].id],blocks:[{beatId:'setup',markdown:'先看这次消息。'},{beatId:'announcement',markdown:'据本次提供的公告，CURRENT_ANNOUNCEMENT。'},{beatId:'meaning',markdown:'这里只解释公告已支持的变化。'},{beatId:'question',markdown:'模型表现之外，这门生意怎样接受检验？'},{beatId:'ending',markdown:'后续观察文件能否回答这个问题。'}]}}};
-  const narrativeResponse=structuredClone(response);
-  async function send(){a=await e.send(a.id,{text:'选择事件影响展开，生成初稿',purpose:'auto',profileId:profile.id,model:profile.model,revision:a.revision,requestKey:randomUUID()});for(let i=0;i<150&&a.messages.at(-1)?.status==='pending';i++){await new Promise(r=>setTimeout(r,15));a=await e.article(a.id);}return a.messages.at(-1)!;}
-  assert.equal((await send()).status,'complete');const body=documentText(a.document!);
-  assert.match(body,/【素材位：从本次文件提取收入、成本和期间口径，并列一项同口径行业对照】/);
-  assert.ok(body.indexOf('这门生意怎样接受检验')<body.indexOf('【素材位：'));
-  assert.ok(body.indexOf('【素材位：')<body.indexOf('【待写：'));
-  assert.ok(body.indexOf('【待写：')<body.indexOf('后续观察文件'));
-  assert.doesNotMatch(body,/原文 P11|谈判未定/);assert.match(body,/后，讨论业务影响前先展示证据】/);
-  assert.equal(calls,1);assert.match(a.messages.at(-1)!.text,/【素材位：/);
-  const first=a; a=await planned({kind:'news'});
-  response={action:'edit',target:'document',markdown:'# 泛论\n\n'.concat('在证据出现之前，只能讨论可能性。'.repeat(20))};
-  assert.equal((await send()).status,'failed');assert.match(a.messages.at(-1)!.error||'',/叙事|素材/);
-  assert.equal(documentText(a.document!),'');assert.match(documentText((await e.article(first.id)).document!),/【素材位：/);
-  const dataSource=await e.addSource({title:'同口径经营数据',summary:'CURRENT_COMPARISON_DATA'});
-  a=await planned({kind:'news',references:[{kind:'source',id:source.id},{kind:'source',id:dataSource.id}]});
-  response=structuredClone(narrativeResponse);
-  response.narrative.plan.materialBindings[0].referenceIds=[a.references[0].id];
-  response.narrative.plan.materialBindings[1].referenceIds=[a.references[1].id];
-  response.narrative.draft.sourceIds=a.references.map(r=>r.id);
-  response.narrative.draft.blocks.splice(4,0,{beatId:'data',markdown:'CURRENT_COMPARISON_DATA，同口径的对照如下。'},{beatId:'judgment',markdown:'这项判断有本次经营资料支持。'});
-  assert.equal((await send()).status,'complete');assert.doesNotMatch(documentText(a.document!),/【素材位：|【待写：/);
-  assert.match(documentText(a.document!),/CURRENT_COMPARISON_DATA/);assert.equal(calls,3);
-  a=await planned({kind:'news'});response.narrative.plan.materialBindings[0].referenceIds=['historical-example-id'];
-  assert.equal((await send()).status,'failed');assert.match(a.messages.at(-1)!.error||'',/本次|素材/);assert.equal(calls,4);
-  a=await planned({kind:'news'});response=structuredClone(narrativeResponse);response.narrative.plan.materialBindings[0].referenceIds=['kb:KB-OTHER'];response.narrative.draft.sourceIds=['kb:KB-OTHER'];response.knowledgeCitations=[{...fixtureCitation,articleId:'KB-OTHER'}];
-  assert.equal((await send()).status,'failed');assert.match(a.messages.at(-1)!.error||'',/蓝图|素材.*引用/);
-  a=await planned({kind:'news'});response.knowledgeCitations.push(fixtureCitation);assert.equal((await send()).status,'complete');assert.equal(a.messages.at(-1)!.knowledge!.citations!.length,2);assert.equal(calls,6);
- }finally{await store.close();await rm(dir,{recursive:true,force:true});}
+test('freeform article material gaps are kept without mandatory slots or a fixed block count',async()=>{
+ const dir=await mkdtemp('/private/tmp/writing-freeform-gaps-'),store=await createStore(dir),profile:LocalProfile={id:'qa-freeform',name:'QA',vendor:'QA',model:'fixture',adapter:'api',color:'#111111',modes:['text'],supportsTemperature:false};
+ const body='# 本篇资讯\n\n先写已有依据。\n\n【素材位：补充本次发布的开放条件】\n\n【待写：核对开放条件后，再讨论使用门槛】';
+ const e=new EditorialService(new CasebenchService(store),{profiles:async()=>[profile],knowledge:async()=>fixtureKnowledge(),execute:async()=>({text:citedReply(JSON.stringify({action:'edit',reply:'保留了具体待核实事项。',markdown:body})),usage:UNKNOWN_USAGE,logs:'',reportedModel:profile.model})});
+ try{let a=await e.create({});a=await e.send(a.id,{text:'直接写成一条资讯',purpose:'auto',profileId:profile.id,model:profile.model,revision:0,requestKey:randomUUID()});for(let i=0;i<150&&a.messages.at(-1)?.status==='pending';i++){await new Promise(r=>setTimeout(r,15));a=await e.article(a.id);}assert.equal(a.messages.at(-1)?.status,'complete',a.messages.at(-1)?.error);assert.match(documentText(a.document!),/【素材位：补充本次发布的开放条件】/);assert.match(documentText(a.document!),/【待写：/);assert.doesNotMatch(documentText(a.document!),/保留了具体待核实事项|本次知识库参考/);}finally{await store.close();await rm(dir,{recursive:true,force:true});}
 });

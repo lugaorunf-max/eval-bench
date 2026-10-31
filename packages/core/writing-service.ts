@@ -2,25 +2,36 @@ import { z } from 'zod';
 import type { DocumentNode, WritingArticle, WritingSelection } from '../contracts/editorial';
 import type { EditorialService } from './editorial';
 import { AppError, newId, now } from './service';
-import { documentText, normalizeArticle, revisionChanges, revisionDocument, validateDocument } from './writing-document';
+import { documentEqual, documentText, normalizeArticle, revisionChanges, revisionDocument, validateDocument } from './writing-document';
 import { reviseSelectedPassage } from './writing-selection';
+import {mergeWritingDocuments} from './writing-sync';
+import type {WritingImageMap} from './writing-web-media';
 
 export function documentVersion(a:WritingArticle,label:string){return {id:newId('version'),label,createdAt:now(),document:a.document!};}
-export function finishDocumentGeneration(current:WritingArticle,base:WritingArticle,messageId:string,answer:string,purpose:string,scope?:{start:number;end:number},selection?:WritingSelection,versionLabel='AI 初稿'):WritingArticle{
+export function finishDocumentGeneration(current:WritingArticle,base:WritingArticle,messageId:string,answer:string,purpose:string,scope?:{start:number;end:number},selection?:WritingSelection,versionLabel='AI 初稿',applyIfUnchanged=false,images:WritingImageMap={}):WritingArticle{
   const a=normalizeArticle(current);if(purpose==='discuss')return a;
-  const document=validateDocument(selection?reviseSelectedPassage(base.document!,selection,answer):revisionDocument(base,answer,scope),a);
-  if(!documentText(base.document!)&&a.documentRevision===base.documentRevision){return {...a,document,documentRevision:(a.documentRevision||0)+1,versions:[...(a.versions||[]),documentVersion({...a,document},versionLabel)].slice(-30),proposal:null};}
+  const document=validateDocument(selection?reviseSelectedPassage(base.document!,selection,answer,images):revisionDocument(base,answer,scope,images),a);
+  if((applyIfUnchanged||!documentText(base.document!))&&a.documentRevision===base.documentRevision){return {...a,document,documentRevision:(a.documentRevision||0)+1,versions:[...(a.versions||[]),...(documentText(base.document!)?[documentVersion(a,'AI 修改前')]:[]),documentVersion({...a,document},versionLabel)].slice(-30),proposal:null};}
   return {...a,proposal:{id:newId('proposal'),messageId,baseRevision:base.documentRevision||0,createdAt:now(),changes:revisionChanges(base.document!,document)}};
 }
 export class WritingDocumentService {
   constructor(private e:EditorialService){}
   async save(id:string,raw:unknown){
-    const v=z.object({documentRevision:z.number().int().nonnegative(),document:z.unknown(),checkpoint:z.boolean().default(false)}).strict().parse(raw);
-    return this.e.mutate<WritingArticle>(id,'article',raw=>{const a=normalizeArticle(raw);if(a.documentRevision!==v.documentRevision)throw new AppError(409,'正文已在其他窗口更新。你的本地修改已保留，请先复制或下载，再重新读取。');
+    const v=z.object({documentRevision:z.number().int().nonnegative(),document:z.unknown(),baseDocument:z.unknown().optional(),keepConflictVersion:z.boolean().default(false),checkpoint:z.boolean().default(false)}).strict().parse(raw);
+    return this.e.mutate<WritingArticle>(id,'article',raw=>{const a=normalizeArticle(raw);
       let document:DocumentNode;try{document=validateDocument(v.document,a);}catch(e){throw new AppError(400,(e as Error).message);}
+      if(v.keepConflictVersion)return {...a,revision:a.revision+1,updatedAt:now(),versions:[...(a.versions||[]),documentVersion({...a,document},'未合并的本地修改')].slice(-30)};
+      if(a.documentRevision!==v.documentRevision){
+        if(documentEqual(document,a.document))return a;
+        let merged:DocumentNode|null=null;
+        if(v.baseDocument){try{const base=validateDocument(v.baseDocument,a);merged=mergeWritingDocuments(base,document,a.document!);}catch{}}
+        if(!merged)throw new AppError(409,'正文已在其他窗口更新，重叠修改已保留，请在当前页面选择保留的版本');
+        document=validateDocument(merged,a);
+        if(documentEqual(document,a.document))return a;
+      }
       if(JSON.stringify(a.document)===JSON.stringify(document))return a;
       const checkpoint=v.checkpoint||!a.versions?.length||Date.now()-Date.parse(a.versions.at(-1)!.createdAt)>60000;
-      return {...a,document,documentRevision:v.documentRevision+1,revision:a.revision+1,updatedAt:now(),versions:checkpoint?[...(a.versions||[]),documentVersion(a,'手动编辑前')].slice(-30):a.versions};});
+      return {...a,document,documentRevision:(a.documentRevision||0)+1,revision:a.revision+1,updatedAt:now(),versions:checkpoint?[...(a.versions||[]),documentVersion(a,'手动编辑前')].slice(-30):a.versions};});
   }
   async proposal(id:string,raw:unknown){const v=z.object({proposalId:z.string(),action:z.enum(['apply','discard']),documentRevision:z.number().int(),changeIds:z.array(z.string()).max(200)}).strict().parse(raw);
     return this.e.mutate<WritingArticle>(id,'article',raw=>{const a=normalizeArticle(raw),p=a.proposal;if(!p||p.id!==v.proposalId)throw new AppError(409,'这份修订已处理，请刷新');

@@ -1,7 +1,7 @@
-import { count } from 'drizzle-orm';
+import { count,eq } from 'drizzle-orm';
 import type { CaseData } from '../contracts/index';
 import type { Store } from './db';
-import { cases, caseVersions } from './schema';
+import { cases, caseVersions,editorialRecords } from './schema';
 import { digest } from './config';
 
 const samples: (CaseData & { id: string })[] = [
@@ -16,9 +16,11 @@ const samples: (CaseData & { id: string })[] = [
 ];
 export async function seedStore(store: Store) {
   const [{ n }] = await store.db.select({ n: count() }).from(cases);
-  if (n) return;
+  const marked=(await store.db.select().from(editorialRecords).where(eq(editorialRecords.id,'system_seeded')))[0];if(marked)return;
+  if(n){const at=new Date().toISOString();await store.db.insert(editorialRecords).values({id:'system_seeded',kind:'system',data:{seeded:true},createdAt:at,updatedAt:at}).onConflictDoNothing();return;}
   const at = new Date().toISOString();
   await store.db.transaction(async tx => {
+    await tx.insert(editorialRecords).values({id:'system_seeded',kind:'system',data:{seeded:true},createdAt:at,updatedAt:at}).onConflictDoNothing();
     for (const entry of samples) {
       const { id, ...data } = entry;
       const versionId = `${id}-v1`;

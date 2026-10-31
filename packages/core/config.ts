@@ -58,7 +58,7 @@ export async function loadProfiles(configPath = process.env.CASEBENCH_CONFIG || 
     // Migrate only our own legacy harness; preserve user-supplied command adapters.
     if (!old || old.args?.some(a => /desktop-harness\.mjs$/.test(a))) {
       profiles = profiles.filter(p => p.id !== 'chatgpt-session');
-      profiles.push({ id: 'chatgpt-session', agentId: 'gpt', discovered: true, name: 'GPT 桌面端', vendor: 'OpenAI', model: 'default', adapter: 'command', color: '#242832', modes: ['text'], supportsTemperature: false, program: process.execPath, args: [path.join(projectRoot(), 'scripts/desktop-harness.mjs'), 'chatgpt-session'], harnessVersion: 'casebench-session-0.4' });
+      profiles.push({ id: 'chatgpt-session', agentId: 'gpt', discovered: true, name: 'GPT 桌面端', vendor: 'OpenAI', model: 'default', adapter: 'command', color: '#242832', modes: ['text','html'], supportsTemperature: false, program: process.execPath, args: [path.join(projectRoot(), 'scripts/desktop-harness.mjs'), 'chatgpt-session'], harnessVersion: 'casebench-session-0.4' });
     }
   }
   if (process.env.CASEBENCH_DISABLE_DISCOVERY !== '1') for (const [agentId,name,vendor,color] of [['workbuddy','WorkBuddy','Tencent','#16816b'],['deepseek','DeepSeek Harness','DeepSeek','#4d6bfe'],['minimax','MiniMax Code','MiniMax','#e65463']]) {
@@ -66,7 +66,7 @@ export async function loadProfiles(configPath = process.env.CASEBENCH_CONFIG || 
     const id=SESSION_PROFILES[agentId];
     if(profiles.some(p=>p.id===id&&!p.discovered))continue;
     profiles=profiles.filter(p=>p.id!==id);
-    profiles.push({id,agentId,discovered:true,name,vendor,model:'default',adapter:'command',color,modes:['text'],supportsTemperature:false,program:process.execPath,args:[path.join(projectRoot(),'scripts/native-harness.mjs'),agentId],harnessVersion:'casebench-native-0.5'});
+    profiles.push({id,agentId,discovered:true,name,vendor,model:'default',adapter:'command',color,modes:['text','html'],supportsTemperature:false,program:process.execPath,args:[path.join(projectRoot(),'scripts/native-harness.mjs'),agentId],harnessVersion:'casebench-native-0.5'});
   }
   return [...DEMO_PROFILES, ...profiles];
 }

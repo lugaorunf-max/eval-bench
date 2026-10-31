@@ -85,7 +85,7 @@ async function runCommand(runId: string, syncOnly: boolean) {
   const directory = path.join(stateDir(), 'runs', runId);
   await mkdir(directory, { recursive: true });
   console.log(`${run.spec.demo ? '演示运行（不调用外部模型）' : '真实模型运行'} ${runId}`);
-  console.log(`  ${run.spec.cases.length} 个案例 × ${run.spec.models.length} 个配置 · 并发 ${run.spec.concurrency} · 超时 ${run.spec.timeoutSeconds}s`);
+  console.log(`  ${run.spec.cases.length} 个案例 × ${run.spec.models.length} 个配置 · 并发 ${run.spec.concurrency} · ${run.spec.timeoutSeconds ? `限时 ${run.spec.timeoutSeconds}s` : '不限时'}`);
   const heartbeat = setInterval(() => {
     void request(`runner/runs/${runId}/heartbeat`, 'POST', {}).catch(e => console.error(`  连接提示：${e.message}；本地产物继续保留。`));
   }, 15_000); heartbeat.unref();
@@ -122,7 +122,7 @@ async function runCommand(runId: string, syncOnly: boolean) {
         const cp: Checkpoint = { runId, resultId: r.id, attemptId: start.attemptId, completed: false, synced: false, status: 'failed', outputText: '', error: null, durationMs: null, usage: { ...UNKNOWN_USAGE }, reportedModel: null, logs: '', files: [] };
         await atomicJson(checkpointFile, cp);
         console.log(`  开始 ${c.title} · ${m.name}`);
-        const started = performance.now(), timeout = AbortSignal.timeout(run.spec.timeoutSeconds * 1000), signal = AbortSignal.any([stop.signal, timeout]);
+        const started = performance.now(), timeout = run.spec.timeoutSeconds ? AbortSignal.timeout(run.spec.timeoutSeconds * 1000) : null, signal = timeout ? AbortSignal.any([stop.signal, timeout]) : stop.signal;
         try {
           const inputPaths = [];
           for (const input of c.inputs) {
@@ -137,7 +137,7 @@ async function runCommand(runId: string, syncOnly: boolean) {
           cp.outputText = result.text; cp.metadata = result.metadata; cp.usage = result.usage; cp.reportedModel = result.reportedModel; cp.logs = redact(result.logs, profiles);
           cp.status = 'succeeded';
         } catch (e) {
-          cp.status = timeout.aborted ? 'timed_out' : stop.signal.aborted || (e instanceof Error && /用户停止/.test(e.message)) ? 'cancelled' : 'failed';
+          cp.status = timeout?.aborted ? 'timed_out' : stop.signal.aborted || (e instanceof Error && /用户停止/.test(e.message)) ? 'cancelled' : 'failed';
           cp.error = redact(e instanceof Error ? e.message : String(e), profiles); cp.logs = cp.error;
           console.error(`  ${c.title}：${cp.error}`);
         }

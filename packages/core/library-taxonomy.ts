@@ -1,5 +1,7 @@
-import { SCENES, type CaseRecord, type Scene } from '../contracts/index';
+import { SCENES, type CaseRecord, type Scene, type ArtifactType } from '../contracts/index';
 
+export const caseScenes=(c:Pick<CaseRecord,'scene'|'scenes'>):Scene[]=>[...new Set([c.scene,...(c.scenes||[])])];
+export const caseArtifacts=(c:Pick<CaseRecord,'artifactType'|'artifactTypes'>):ArtifactType[]=>[...new Set([c.artifactType,...(c.artifactTypes||[])])];
 export const LIBRARY_SCENES = [
   { key: '', label: '全部', icon: 'all', scenes: [] },
   { key: 'game', label: '游戏生成', icon: 'game', scenes: ['game'] },
@@ -40,14 +42,14 @@ export function matchesLibraryCase(entry: CaseRecord, options: { scenes: readonl
   // Each facet accepts any selected value; separate facets must all match.
   if (options.scenes.length && !options.scenes.some(key => {
     const group = LIBRARY_SCENES.find(s => s.key === key);
-    return group && (group.scenes as readonly string[]).includes(entry.scene);
+    return group && caseScenes(entry).some(s=>(group.scenes as readonly string[]).includes(s));
   })) return false;
-  if (options.artifacts.length && !options.artifacts.includes(entry.artifactType)) return false;
+  if (options.artifacts.length && !caseArtifacts(entry).some(a=>options.artifacts.includes(a))) return false;
   if (options.favorites && !entry.favorite) return false;
   const caps = caseCapabilities(entry);
   if (options.capabilities.length && !options.capabilities.some(c => caps.includes(c))) return false;
   if (options.interpreted || !options.query.trim()) return true;
-  const haystack = `${entry.title} ${entry.prompt} ${SCENES[entry.scene]} ${caps.map(c => LIBRARY_CAPABILITIES[c].label).join(' ')}`.toLowerCase();
+  const haystack = `${entry.title} ${entry.prompt} ${caseScenes(entry).map(s=>SCENES[s]).join(" ")} ${caps.map(c => LIBRARY_CAPABILITIES[c].label).join(' ')}`.toLowerCase();
   return options.query.trim().toLowerCase().split(/\s+/).every(term => haystack.includes(term));
 }
 export function sceneLabel(scene: Scene) { return LIBRARY_SCENES.find(s => (s.scenes as readonly string[]).includes(scene))?.label || SCENES[scene]; }

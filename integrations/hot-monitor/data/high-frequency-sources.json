@@ -1,0 +1,591 @@
+{
+  "description": "经2026-10-30小量试采的28项来源配置。导入前去重并复核；默认关闭，X需SocialData凭据和预算。",
+  "sources": [
+    {
+      "id": "hm-fad6d5264cc915ec",
+      "name": "21世纪经济报道",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.21jingji.com/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 5,
+          "summarySelector": "meta[property=\"og:description\"]"
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/article/\"]",
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-943fb8aa9c74079d",
+      "name": "CNBC",
+      "kind": "rss",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://www.cnbc.com/id/19854910/device/rss/rss.html",
+        "summaryIsBody": false,
+        "fetchPublicContent": false
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-73c344bbac1d2a2a",
+      "name": "IGN",
+      "kind": "rss",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://www.ign.com.cn/feed.xml",
+        "summaryIsBody": false,
+        "fetchPublicContent": false
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-e0971b26721cd08c",
+      "name": "Variety / 综艺",
+      "kind": "rss",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://variety.com/feed/",
+        "summaryIsBody": false,
+        "fetchPublicContent": false
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-4e51f3198162a5b7",
+      "name": "X：Alexandr Wang",
+      "kind": "x_search",
+      "config": {
+        "query": "from:alexandr_wang -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-7b86c9ed2dc9125e",
+      "name": "X：Andrej Karpathy (@karpathy)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:karpathy -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-f643d6016db0f51c",
+      "name": "X：Artificial Analysis (@ArtificialAnlys)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:artificialanlys -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-2be282b024d6f0ab",
+      "name": "X：Axios（X报道入口）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:axios -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-e976b1f2d886cc01",
+      "name": "X：Cursor (@cursor_ai)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:cursor_ai -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-363a0529f8778a2f",
+      "name": "X：Deadline（X报道入口）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:DEADLINE -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-fd8f5126a3b28e21",
+      "name": "X：IDC（官方X）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:IDC -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-0ee145e9f24cc185",
+      "name": "X：Junyang Lin / 林俊旸",
+      "kind": "x_search",
+      "config": {
+        "query": "from:JustinLin610 -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-46f3d8d12b64ea1b",
+      "name": "X：Nikkei Asia / 日经（X报道入口）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:NikkeiAsia -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-42537a4d8bb85b0b",
+      "name": "X：小米 MiMo (@XiaomiMiMo)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:XiaomiMiMo -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-b915994ec20c4b21",
+      "name": "X：彭博 / Bloomberg（X报道入口）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:business -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-4f17c56eec7c1656",
+      "name": "X：智谱 Z.ai (@Zai_org)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:Zai_org -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-e4aa3f90dda41314",
+      "name": "X：路透 / Reuters（X报道入口）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:Reuters -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-ea528e018b1a1a8b",
+      "name": "X：通义千问 / Qwen (@Alibaba_Qwen)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:Alibaba_Qwen -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-5b28162be6b029da",
+      "name": "X：郭明錤 / Ming-Chi Kuo",
+      "kind": "x_search",
+      "config": {
+        "query": "from:mingchikuo -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-25da6179cce7dacd",
+      "name": "X：金融时报 / FT（X报道入口）",
+      "kind": "x_search",
+      "config": {
+        "query": "from:FT -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-fa735416c0ae5454",
+      "name": "arXiv论文入口",
+      "kind": "rss",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://rss.arxiv.org/rss/cs.AI",
+        "summaryIsBody": false,
+        "fetchPublicContent": false
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-29cd331f688ce0f7",
+      "name": "华尔街日报 / WSJ",
+      "kind": "rss",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://feeds.content.dowjones.io/public/rss/RSSWSJD",
+        "summaryIsBody": false,
+        "fetchPublicContent": false
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-aa7da49e415dc0c1",
+      "name": "每日经济新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.nbd.com.cn/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 5,
+          "summarySelector": "meta[name=\"description\"]",
+          "publishedAtSelector": "p.u-time span.time",
+          "publishedAtAuthoritative": true
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/articles/\"]",
+        "allowUrlPrefixes": [
+          "https://www.nbd.com.cn/articles/"
+        ],
+        "publishedAtRegex": "href=\"[^\"\\s]*/articles/(\\d{4}-\\d{2}-\\d{2})/",
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-1681227cc14bd631",
+      "name": "澎湃新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.thepaper.cn/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 5,
+          "summarySelector": "meta[property=\"og:description\"]"
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"newsDetail_forward_\"]",
+        "allowUrlPrefixes": [
+          "https://www.thepaper.cn/newsDetail_forward_"
+        ],
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-5b7954305e37f956",
+      "name": "界面新闻",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.jiemian.com/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 5,
+          "summarySelector": "meta[name=\"description\"]",
+          "publishedAtRegex": "data-article-publish-time=\"(\\d{10})\"",
+          "publishedAtAuthoritative": true
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/article/\"]",
+        "denyUrlPrefixes": [
+          "https://www.jiemian.com/article/9943448",
+          "https://www.jiemian.com/article/9399372",
+          "https://www.jiemian.com/article/9256231"
+        ],
+        "allowUrlPrefixes": [
+          "https://www.jiemian.com/article/"
+        ],
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-7efa3049f6d2dec2",
+      "name": "第一财经",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.yicai.com/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 5,
+          "summarySelector": "meta[name=\"description\"]",
+          "publishedAtSelector": "em.f-fl",
+          "publishedAtAuthoritative": true
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href^=\"/news/\"]",
+        "allowUrlPrefixes": [
+          "https://www.yicai.com/news/"
+        ],
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-5df3c4440e1b60f5",
+      "name": "财新",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.caixin.com/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 0
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"2026-\"]",
+        "allowUrlPrefixes": [
+          "https://www.caixin.com/",
+          "https://economy.caixin.com/",
+          "https://companies.caixin.com/",
+          "https://china.caixin.com/",
+          "https://finance.caixin.com/"
+        ],
+        "publishedAtRegex": "href=\"https?://[^\"/]+/(\\d{4}-\\d{2}-\\d{2})/",
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "hm-213c5450340bc288",
+      "name": "财联社",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.cls.cn/",
+        "_aihot": {
+          "initialBackfillLimit": 20,
+          "initialBackfillMonths": 1
+        },
+        "detail": {
+          "maxFetches": 5,
+          "summarySelector": "meta[name=\"description\"]",
+          "publishedAtRegex": ">(\\d{4}年\\d{1,2}月\\d{1,2}日 \\d{2}:\\d{2}:\\d{2})<",
+          "publishedAtAuthoritative": true
+        },
+        "parseMode": "html",
+        "itemSelector": "a[href^=\"/detail/\"]",
+        "allowUrlPrefixes": [
+          "https://www.cls.cn/detail/"
+        ],
+        "fetchPublicContent": false,
+        "publishedAtUtcOffset": "+08:00"
+      },
+      "tier": "T2",
+      "interval_minutes": 60,
+      "tags": [],
+      "participation_mode": "editorial",
+      "enabled": false,
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    }
+  ]
+}

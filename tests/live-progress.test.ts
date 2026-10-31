@@ -24,3 +24,10 @@ test('实时进度仅返回当前尝试，拒绝伪造任务链接和符号链�
     assert.deepEqual(await readLiveProgress(run), []);
   } finally { if (previous === undefined) delete process.env.CASEBENCH_DATA_DIR; else process.env.CASEBENCH_DATA_DIR = previous; }
 });
+
+test('a running task clock advances while the model has no new text and stops after completion',async()=>{
+ const before=process.env.CASEBENCH_DATA_DIR,dir=await mkdtemp('/private/tmp/live-clock-');process.env.CASEBENCH_DATA_DIR=dir;
+ try{const runId='run_'+'a'.repeat(32),resultId='result_'+'b'.repeat(32),attemptId='attempt_'+'c'.repeat(32),run={id:runId,status:'running',results:[{id:resultId,profileId:'native',attempt:{id:attemptId,status:'running'}}]} as unknown as RunRecord,folder=path.join(dir,'runs',runId,resultId,attemptId);await mkdir(folder,{recursive:true});const at=Date.now()-60000;await writeFile(path.join(folder,'live.json'),JSON.stringify({threadId:'clock',phase:'running',model:'test',updatedAt:new Date(at).toISOString(),events:[],outputText:'',activeDurationMs:1500}));
+ assert.ok((await readLiveProgress(run))[0].activeDurationMs!>=61500);run.results[0].attempt!.status='succeeded';assert.equal((await readLiveProgress(run))[0].activeDurationMs,1500);
+ }finally{if(before===undefined)delete process.env.CASEBENCH_DATA_DIR;else process.env.CASEBENCH_DATA_DIR=before;}
+});

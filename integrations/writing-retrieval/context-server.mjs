@@ -6,7 +6,7 @@ import {loadLibrary,retrieve} from './project/server/knowledge.mjs';
 import {loadHumanizerSkill} from './project/server/humanizer.mjs';
 import {cleanRagText} from './project/server/rag-documents.mjs';
 const safeText=(v,n=4000)=>typeof v==='string'?v.slice(0,n):'';
-export function projectContext(found,skill,library={}){
+export function projectContext(found,skill,library={},articlesOnly=false){
  // Explicitly project fields. Local paths, Obsidian URLs and whole source documents never cross the bridge.
  const templates=(found.templates||[]).slice(0,8).map(t=>({id:t.id,name:t.name,genre:t.genre,fit:t.fit,sequence:t.sequence,materials:t.materials,boundary:t.boundary,hooks:t.hooks}));
  const examples=(found.examples||[]).slice(0,6).map(e=>({id:e.id,title:e.title,evidenceLevel:e.evidenceLevel,recipe:e.recipe,stages:e.stages,opening:e.opening,middle:e.middle,ending:e.ending,contentExcerpt:safeText(e.contentExcerpt,1800),analysisExcerpt:safeText(e.analysisExcerpt,1800),match:e.match?{channels:e.match.channels,terms:e.match.terms,reason:e.match.reason}:undefined}));
@@ -22,16 +22,16 @@ export function projectContext(found,skill,library={}){
   })),
  }));
  const byId=new Map((library.articles||[]).map(a=>[a.id,a]));
- const ids=[...new Set([...examples.map(a=>a.id),...blueprints.flatMap(b=>b.sourceArticleIds||[])])];
+ const ids=[...new Set([...examples.map(a=>a.id),...(articlesOnly?[]:blueprints.flatMap(b=>b.sourceArticleIds||[]))])];
  let budget=24000;const articles=[];
  for(const [index,id] of ids.entries()){
   const source=byId.get(id),example=examples.find(a=>a.id===id),a=source||example;if(!a)continue;
   const original=Boolean(source?.originalNotePath),body=cleanRagText(original?source._sourceText:example?.contentExcerpt||'');
-  if(!body.trim())continue;const cap=Math.min(9000,Math.floor(budget/(ids.length-index))),content=body.slice(0,cap);budget-=content.length;
+  if(!body.trim())continue;const cap=Math.min(9000,Math.floor(budget/(ids.length-index))),match=cleanRagText(example?.contentExcerpt||'').slice(0,80),offset=match?body.indexOf(match):-1,start=articlesOnly&&body.length>cap&&offset>0?Math.max(0,Math.min(offset-200,body.length-cap)):0,content=body.slice(start,start+cap);budget-=content.length;
   if(!content.trim())continue;
   articles.push({id:a.id,title:a.title||id,url:/^https?:\/\//i.test(a.url||'')?a.url:'',account:a.account||'',publishDate:a.publishDate||'',evidenceLevel:a.evidenceLevel==='analyzed'?'analyzed':'candidate',content,contentScope:original&&content.length===body.length?'full':'excerpt',readChars:content.length,totalChars:body.length});
  }
- return {revision:found.revision||null,engine:found.retrieval?.engine||'unknown',templates,examples,blueprints,articles,guidance:(found.guidance||[]).slice(0,4).map(g=>({title:g.title,excerpt:safeText(g.excerpt,1200)})),writingSkill:{id:skill.id,revision:skill.revision,instructions:skill.instructions},modelCalls:0};
+ return {revision:found.revision||null,engine:found.retrieval?.engine||'unknown',...(!articlesOnly?{templates,blueprints,guidance:(found.guidance||[]).slice(0,4).map(g=>({title:g.title,excerpt:safeText(g.excerpt,1200)}))}:{}),examples,articles,writingSkill:{id:skill.id,revision:skill.revision,instructions:skill.instructions},modelCalls:0};
 }
 export function createContextServer({token=process.env.WRITING_BRIDGE_TOKEN||'',library=loadLibrary,lookup=retrieve,skill=loadHumanizerSkill}={}){
  const json=(res,status,value)=>{res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(value));};
@@ -50,7 +50,8 @@ export function createContextServer({token=process.env.WRITING_BRIDGE_TOKEN||'',
    let input;try{input=JSON.parse(Buffer.concat(chunks).toString());}catch{return json(res,400,{error:'JSON 格式无效'});}
    if(typeof input.brief!=='string'||!input.brief.trim()||input.brief.length>20000||!['资讯','教程','测评','评论','科普','故事','盘点'].includes(input.genre)||!Array.isArray(input.references)||input.references.length>30)return json(res,400,{error:'检索参数无效'});
    const references=input.references.map(r=>({id:safeText(r.id,130),title:safeText(r.title,500),content:safeText(r.content,12000)}));
-   if(inFlight)return json(res,429,{error:'检索进行中，请稍后重试'});inFlight=true;ownsSlot=true;const found=await lookup({brief:input.brief,genre:input.genre,references},6);const current=await library();if(found.revision&&current.revision&&found.revision!==current.revision)return json(res,503,{error:'知识库已更新，请重新检索'});const context=projectContext(found,await skill(),current);
+   if(input.mode!==undefined&&input.mode!=='articles')return json(res,400,{error:'检索模式无效'});
+   if(inFlight)return json(res,429,{error:'检索进行中，请稍后重试'});inFlight=true;ownsSlot=true;const found=await lookup({brief:input.brief,genre:input.genre,references,...(input.mode==='articles'?{mode:'articles'}:{})},6);const current=await library();if(found.revision&&current.revision&&found.revision!==current.revision)return json(res,503,{error:'知识库已更新，请重新检索'});const context=projectContext(found,await skill(),current,input.mode==='articles');
    if(Buffer.byteLength(JSON.stringify(context))>380000)return json(res,502,{error:'检索响应过大，请缩小查询范围'});
    return json(res,200,context);
   }catch{return json(res,503,{error:'知识库检索失败，请检查服务端知识库与索引状态'});}finally{if(ownsSlot)inFlight=false;}

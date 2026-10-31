@@ -17,7 +17,7 @@ async function main(){
  let checkpoint:{completion:any;files:{id:string;name:string;path:string;mime:string;sha256:string}[];synced:boolean};
  if(flags.includes('--recover')){checkpoint=JSON.parse(await readFile(checkpointFile,'utf8'));}
  else{
-  const timeout=AbortSignal.timeout(job.timeoutSeconds*1000),signal=AbortSignal.any([stop.signal,timeout]);let seq=0,posting=false;const started=performance.now();
+  const timeout=job.timeoutSeconds?AbortSignal.timeout(job.timeoutSeconds*1000):null,signal=timeout?AbortSignal.any([stop.signal,timeout]):stop.signal;let seq=0,posting=false;const started=performance.now();
   const progress=async()=>{if(posting)return;posting=true;try{let data:any;try{data=JSON.parse(await readFile(path.join(directory,'live.json'),'utf8'));}catch{data={outputText:'',usage:{...UNKNOWN_USAGE}};}
    const metadata:ExecutionMetadata={agentId:job.profile.agentId||'gpt',threadId:job.conversation.threadId,...(data.turnId?{turnId:data.turnId}:{}),...(typeof data.activeDurationMs==='number'?{activeDurationMs:data.activeDurationMs}:{}),...(data.usageRaw?{usageRaw:data.usageRaw}:{})};
    const state=await request(`runner/conversations/${turnId}/progress`,{seq:++seq,outputText:data.outputText||'',usage:data.usage||{...UNKNOWN_USAGE},metadata});if(state.cancelRequested){await writeFile(path.join(directory,'cancel.json'),'{}');stop.abort(new Error('用户停止了本轮执行'));}
@@ -26,7 +26,7 @@ async function main(){
   try{
    const result=await executeAdapter({case:job.entry,model:job.model,profile:job.profile,directory,outputDirectory:out,inputPaths:[],signal,conversation:job.conversation});
    completion={...completion,status:'succeeded',outputText:result.text,usage:result.usage,metadata:result.metadata||{},reportedModel:result.reportedModel,logs:result.logs};
-  }catch(e){completion.error=e instanceof Error?e.message:String(e);completion.logs=completion.error;completion.status=timeout.aborted?'timed_out':stop.signal.aborted||/用户停止/.test(completion.error)?'cancelled':'failed';}
+  }catch(e){completion.error=e instanceof Error?e.message:String(e);completion.logs=completion.error;completion.status=timeout?.aborted?'timed_out':stop.signal.aborted||/用户停止/.test(completion.error)?'cancelled':'failed';}
   finally{clearInterval(timer);while(posting)await new Promise(r=>setTimeout(r,25));}
   const recovered=await readSessionOutput(out);if(recovered.metadata.threadId){completion.metadata=recovered.metadata;completion.usage=recovered.usage;completion.reportedModel=recovered.reportedModel;completion.outputText ||= recovered.text;}
   completion.durationMs=Math.round(performance.now()-started);

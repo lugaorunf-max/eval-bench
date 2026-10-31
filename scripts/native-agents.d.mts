@@ -13,3 +13,5 @@ export function workbuddyModels(installation:AgentInstallation):Promise<AgentMod
 export function probeWorkbuddyAgent(installation:AgentInstallation):Promise<{models:AgentModel[];hasAccount:boolean}>;
 export function runAcpSession(task:any,prompt:string,agentId:string):Promise<string>;
 export function runWorkbuddySession(task:any,prompt:string):Promise<string>;
+
+export function workbuddyEnvironment(installation: {path?:string}): NodeJS.ProcessEnv;

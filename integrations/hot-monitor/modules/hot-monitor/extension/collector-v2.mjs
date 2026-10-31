@@ -1,0 +1,19 @@
+import {caseItem} from './collector-core.mjs';
+const LOCAL=['http://localhost:43110','http://127.0.0.1:43110'];
+export async function libraryRequest({route,body}){
+ if(!['http://localhost:43110','http://127.0.0.1:43110'].includes(location.origin)||!['targets','collect','job'].includes(route))throw Error('工作台地址无效');
+ if(route==='job'&&!/^[A-Za-z0-9_-]{1,130}$/.test(body?.id||''))throw Error('任务无效');const r=await fetch(route==='job'?'/api/editorial/media-jobs':'/api/editorial/library/'+route,{method:body&&route!=='job'?'POST':'GET',headers:{'content-type':'application/json'},...(body&&route!=='job'?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok)throw Error(d.error||'保存失败');return route==='job'?d.find(j=>j.id===body.id)||{status:'failed',error:'任务不存在'}:route==='targets'?{...d,currentArticleId:sessionStorage.getItem('casebench.article-scope')||''}:d;
+}
+export function createLibraryCollector(api,mediaBridge){
+ const local=raw=>{try{return LOCAL.includes(new URL(raw).origin);}catch{return false;}};
+ async function workspace(){const tabs=await api.tabs.query({url:LOCAL.map(o=>o+'/*')});const tab=tabs.filter(t=>local(t.url)).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];if(!tab)throw Error('请先打开测写网站；不需要选择选题。');return tab;}
+ async function request(route,body){const tab=await workspace(),r=await api.scripting.executeScript({target:{tabId:tab.id},func:libraryRequest,args:[{route,body}]});if(!r[0]?.result)throw Error('工作台没有响应');return r[0].result;}
+ async function toolbar(tab){if(!Number.isInteger(tab?.id))return;if(local(tab.url)){await api.action.setTitle({tabId:tab.id,title:'到原帖点击插件收集素材或案例'});return;}const u=new URL(tab.url);if(!['https:','http:'].includes(u.protocol))throw Error('请在具体原文网页使用插件');await api.scripting.executeScript({target:{tabId:tab.id},files:['content.js']});await api.tabs.sendMessage(tab.id,{type:'HM_LIBRARY_SHOW'});}
+ async function handle(message,sender){if(sender?.id!==api.runtime.id||sender.frameId!==0||!Number.isInteger(sender.tab?.id))throw Error('无效的收集请求');const actual=await api.tabs.get(sender.tab.id);if(message.type==='HM_WORKSPACE_STATUS')return {installed:true,enabled:false,version:api.runtime.getManifest().version};if(message.type==='HM_AUTO_BOOT')return {ok:true,shown:false,reason:'manual-only'};
+  if(message.type==='HM_LIBRARY_JOB')return {ok:true,job:await request('job',{id:message.id})};
+  if(message.type==='HM_LIBRARY_TARGETS')return {ok:true,...await request('targets')};
+  if(message.type==='HM_LIBRARY_CONNECT'){await mediaBridge.select(actual);return {ok:true,message:'已选定此 X 标签，回网站连接 Chrome 采集即可供 AI 使用。'};}
+  if(message.type!=='HM_LIBRARY_SAVE')throw Error('此版本只在点击插件时收集');if(local(actual.url))throw Error('请在原帖收集');if(!['media','case'].includes(message.intent))throw Error('收集用途无效');const item=caseItem(message.item,actual.url),destination=String(message.destination||''),match=/^(article|event):([A-Za-z0-9_-]{1,120})$/.exec(destination);if(destination&&!match)throw Error('关联目标无效');let bridgeError='';if(message.analyze){try{await mediaBridge.select(actual);const localTab=await workspace();await mediaBridge.handle({type:'HM_MEDIA_CONNECT'},{id:api.runtime.id,frameId:0,url:localTab.url,tab:localTab});}catch(e){bridgeError=e.message;}}const result=await request('collect',{url:item.url,title:item.title||new URL(item.url).hostname,summary:item.summary||'',author:item.author||'',intent:message.intent,...(item.media?.[0]?.url?{previewUrl:item.media[0].url}:{}),priority:!!message.priority,analyze:!!message.analyze&&!bridgeError,...(match?{[match[1]==='article'?'articleId':'eventId']:match[2]}:{})});return {ok:true,...(message.intent==='case'?{message:bridgeError?'已保存案例；采集连接未完成：'+bridgeError:result.analysisPending?result.message:message.analyze?'已保存，正在解析提示词':'已保存到待筛选案例'}:{message:result.reused?'已关联已有素材':"原帖已保存，后台正在下载素材"}),result};
+ }
+ return {toolbar,handle};
+}

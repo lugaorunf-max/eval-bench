@@ -14,7 +14,7 @@ export interface FileRecord {
   role: 'input' | 'reference' | 'output'; createdAt: string;
 }
 export interface CaseData {
-  title: string; prompt: string; scene: Scene; capabilities: Capability[];
+  title: string; prompt: string; scene: Scene; scenes?: Scene[]; artifactTypes?: ArtifactType[]; capabilities: Capability[];
   artifactType: ArtifactType; executionMode: ExecutionMode;
   inputs: FileRecord[]; reference: FileRecord | null; referenceKind?: string;
   instructions: string; sample: boolean;
@@ -45,8 +45,9 @@ export interface AgentCatalog { id: string; name: string; profileId: string | nu
 export interface ModelSelection { profileId: string; model?: string; temperature?: number }
 export interface FrozenModel extends Profile { temperature?: number; baseProfileId?: string }
 export interface RunSpec {
+  articleId?: string;
   cases: CaseRecord[]; models: FrozenModel[]; concurrency: number;
-  timeoutSeconds: number; operator: string; demo: boolean; createdAt: string;
+  timeoutSeconds: number | null; operator: string; demo: boolean; createdAt: string;
 }
 export type ExecutionStatus = 'pending' | 'running' | 'uploading' | 'succeeded' | 'failed' | 'timed_out' | 'cancelled';
 export interface Usage {
@@ -88,6 +89,8 @@ export const caseInputSchema = z.object({
   title: z.string().trim().max(100).default(''),
   prompt: z.string().trim().min(1, '请填写提示词').max(100_000),
   scene: z.enum(Object.keys(SCENES) as [Scene, ...Scene[]]),
+  scenes: z.array(z.enum(Object.keys(SCENES) as [Scene, ...Scene[]])).min(1).max(15).optional(),
+  artifactTypes: z.array(z.enum(['web', 'image', 'video', 'copy'])).min(1).max(4).optional(),
   capabilities: z.array(z.enum(Object.keys(CAPABILITIES) as [Capability, ...Capability[]])).min(1).max(5),
   artifactType: z.enum(['web', 'image', 'video', 'copy']),
   executionMode: z.enum(['text', 'html', 'harness']),
@@ -97,11 +100,12 @@ export const caseInputSchema = z.object({
   expectedVersion: z.number().int().positive().optional()
 });
 export const runInputSchema = z.object({
+  articleId: ids.optional(),
   name: z.string().trim().max(100).default(''),
   caseIds: z.array(ids).min(1).max(30),
   models: z.array(z.object({ profileId: ids, model: z.string().min(1).max(200).optional(), temperature: z.number().min(0).max(2).optional() })).min(1).max(3),
   concurrency: z.number().int().min(1).max(3),
-  timeoutSeconds: z.number().int().min(30).max(3600),
+  timeoutSeconds: z.number().int().min(30).max(2147483).nullable().default(null),
   requestKey: z.string().uuid()
 });
 export const runMetadataSchema = z.object({ name: z.string().trim().min(1).max(100).optional(), pinned: z.boolean().optional() }).strict().refine(v => v.name !== undefined || v.pinned !== undefined, '请提供要修改的名称或置顶状态');

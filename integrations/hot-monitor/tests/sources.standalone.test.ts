@@ -282,3 +282,17 @@ test("a source's language is an Accept-Language value, refused by kinds that rea
   }
   for (const kind of ["x_search", "mp_account", "external"] as const) assert.deepEqual(unsupportedConfig(kind, { acceptLanguage: "en" }), ["acceptLanguage"], kind);
 });
+
+
+test('imported source drafts reuse identity and keep local configuration, verification and classification without enabling collection',async()=>{
+ const {parseSourceDrafts,planSourceDrafts}=await import('../scripts/sync-source-drafts.ts');
+ const identity=(kind:string,config:Record<string,unknown>)=>kind==='x_search'?'x:'+String(config.query).match(/from:([a-z0-9_]+)/i)?.[1].toLowerCase():String(config.feedUrl||config.url||'');
+ const draft={id:'hm-example',name:'X：Example',kind:'x_search',config:{query:'from:EXAMPLE -filter:replies',searchType:'Latest'},tier:'T2',interval_minutes:60,tags:[],participation_mode:'editorial',enabled:false,site_fulltext:false,syndicate_fulltext:false};
+ const raw={description:'同事配置',sources:[draft]},old={id:'hm-example',name:'X：Example',kind:'x_search',config:{query:'from:example -filter:replies lang:en'},tier:'T1',handle:null,originalExample:null,example:'',priority:true,status:'verified',verifiedAt:'2026-10-01T00:00:00Z',fields:['AI与大模型'],sourceRole:'官方一手',enabled:true,recentCount:20} as const;
+ const first=planSourceDrafts(parseSourceDrafts(raw),[old as never],identity)[0]!;assert.equal(first.id,old.id);assert.deepEqual(first.data.config,old.config);assert.equal(first.data.tier,'T1');assert.equal(first.data.verifiedAt,old.verifiedAt);assert.deepEqual(first.data.fields,old.fields);assert.equal(first.data.enabled,undefined);assert.equal(first.data.recentCount,undefined);
+ const added=planSourceDrafts(parseSourceDrafts(raw),[],identity)[0]!;assert.equal(added.data.status,'candidate');assert.equal(added.data.verifiedAt,null);assert.deepEqual(planSourceDrafts(parseSourceDrafts(raw),[added.data],identity)[0]!.data,added.data);
+ assert.throws(()=>planSourceDrafts(parseSourceDrafts({...raw,sources:[draft,draft]}),[],identity),/重复入口/);
+ assert.throws(()=>planSourceDrafts(parseSourceDrafts(raw),[{...old,config:{query:'from:someone_else'}} as never],identity),/不同入口/);
+ assert.throws(()=>parseSourceDrafts({...raw,sources:[{...draft,enabled:true}]}));
+ assert.throws(()=>parseSourceDrafts({...raw,sources:[{...draft,config:{...draft.config,apiKey:'not-allowed'}}]}),/凭据/);
+});

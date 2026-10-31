@@ -20,6 +20,7 @@ export async function readLiveProgress(run: RunRecord) {
     try {
       const stat = await lstat(file); if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 2_200_000) return null;
       const parsed = liveSchema.safeParse(JSON.parse(await readFile(file, 'utf8')));
+      if(parsed.success&&result.attempt.status==='running'&&parsed.data.phase==='running'&&parsed.data.activeDurationMs!==undefined)parsed.data.activeDurationMs+=Math.max(0,Date.now()-Date.parse(parsed.data.updatedAt));
       return parsed.success ? { resultId: result.id, profileId: result.profileId, attemptId: result.attempt.id, ...parsed.data } : null;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT' || error instanceof SyntaxError) return null;

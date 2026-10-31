@@ -35,6 +35,7 @@ export function parseLooseDate(value: string | null | undefined, utcOffset = "+0
   // "Sep 26, 2026 at 10:30": "at" joins a date and its time like a space.
   const v = value.trim().replace(/(\d),?\s+at\s+(?=\d{1,2}:\d{2})/gi, "$1 ");
   if (!v) return null;
+  if (/^(?:\d{10}|\d{13})$/.test(v)) return new Date(Number(v) * (v.length === 10 ? 1000 : 1));
   const compact = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(v);
   if (compact) return atOffset(compact[1]!, compact[2]!, compact[3]!, compact[4]!, compact[5]!, compact[6]!, utcOffset);
   const yearFirst = /(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})日?(?:(?:T|\s*)(\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(v);
@@ -82,7 +83,7 @@ export interface PublicationDate {
 export function readPublicationDate(value: string | null | undefined, utcOffset = "+08:00"): PublicationDate {
   const publishedAt = parseLooseDate(value, utcOffset);
   if (!publishedAt) return { publishedAt: null, publicationTime: null };
-  const timed = /\d{1,2}:\d{2}/.test(value!) || /^\d{14}$/.test(value!.trim());
+  const timed = /\d{1,2}:\d{2}/.test(value!) || /^(?:\d{10}|\d{13}|\d{14})$/.test(value!.trim());
   if (timed) return { publishedAt, publicationTime: publishedAt.toISOString() };
   const offsetMs = Date.UTC(2000, 0, 1) - atOffset(2000, 1, 1, 0, 0, 0, utcOffset)!.getTime();
   return { publishedAt, publicationTime: new Date(publishedAt.getTime() + offsetMs).toISOString().slice(0, 10) };

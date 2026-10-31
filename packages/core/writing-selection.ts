@@ -2,6 +2,7 @@ import { Schema, Slice, type Node as ProseNode } from '@tiptap/pm/model';
 import { Transform } from '@tiptap/pm/transform';
 import type { DocumentNode, WritingSelection } from '../contracts/editorial';
 import { markdownDocument } from './writing-document';
+import type {WritingImageMap} from './writing-web-media';
 
 // Match the stored editor schema without loading a browser or creating an editor.
 export const writingSchema=new Schema({nodes:{
@@ -19,8 +20,8 @@ export function verifyWritingSelection(document:DocumentNode,selection:WritingSe
   return doc;
 }
 
-export function reviseSelectedPassage(document:DocumentNode,selection:WritingSelection,markdown:string):DocumentNode {
-  const doc=verifyWritingSelection(document,selection),replacement=markdownDocument(markdown);
+export function reviseSelectedPassage(document:DocumentNode,selection:WritingSelection,markdown:string,images:WritingImageMap={}):DocumentNode {
+  const doc=verifyWritingSelection(document,selection),replacement=markdownDocument(markdown,images);
   // Referenced evidence/media remain present even when a selection spans their positions.
   const embedded:DocumentNode[]=[];
   doc.nodesBetween(selection.from,selection.to,node=>{if(['writingReference','writingMedia'].includes(node.type.name)){embedded.push(node.toJSON());return false;}});

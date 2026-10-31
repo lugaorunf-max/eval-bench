@@ -11,7 +11,7 @@ const active = state.casebenchDemos ??= new Set();
 export async function startDemo(service: CasebenchService, runId: string, origin: string) {
   const run = await service.getRun(runId);
   if (!run.spec.demo || run.spec.models.some(p => p.adapter !== 'demo')) throw new AppError(400, '网页演示入口只运行演示执行器，真实模型请使用本机命令。');
-  return launch(run, runId, origin);
+  return launch(service, run, runId, origin);
 }
 export function validateLocalProfiles(run: RunRecord, profiles: LocalProfile[]) {
   if (run.spec.demo || run.spec.models.some(m => m.adapter !== 'command')) throw new AppError(400, '这个入口只启动已在本机配置的命令行工具。');
@@ -27,9 +27,9 @@ export async function startLocalRun(service: CasebenchService, runId: string, or
     const probe = await probeProfile(p);
     if (!probe.ready) throw new AppError(400, `${p.name}：${probe.detail}`);
   }
-  return launch(run, runId, origin);
+  return launch(service, run, runId, origin);
 }
-async function launch(run: RunRecord, runId: string, origin: string) {
+async function launch(service:CasebenchService,run: RunRecord, runId: string, origin: string) {
   if (active.has(runId)) return { started: true };
   if (!run.results.some(r => r.status === 'pending')) throw new AppError(409, '这批任务已启动或结束，请查看结果。');
   const root = projectRoot();
@@ -41,8 +41,9 @@ async function launch(run: RunRecord, runId: string, origin: string) {
       cwd: root, env: { ...process.env, CASEBENCH_ROOT: root }, shell: false,
       stdio: ['ignore', log.fd, log.fd], detached: false
     });
-    child.once('error', () => active.delete(runId));
-    child.once('exit', () => active.delete(runId));
+    let observed=false;const ended=(reason:string)=>{if(observed)return;observed=true;active.delete(runId);void service.runnerExited(runId,reason).catch(e=>console.error('执行器退出状态保存失败',e));};
+    child.once('error',e=>ended('执行器未能启动：'+e.message));
+    child.once('exit',(code,signal)=>ended(`执行器已退出（${signal||code}），保留已收到的输出和文件。`));
     child.unref();
     return { started: true };
   } finally { await log.close(); }

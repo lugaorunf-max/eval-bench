@@ -46,3 +46,6 @@ __pycache__/
 # The standalone online demo already has its own repository
 /online-demo/
 /integrations/hot-monitor/data-summary.json
+
+# Isolated Next.js builds and browser acceptance output
+apps/web/.next-*/

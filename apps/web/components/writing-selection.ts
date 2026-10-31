@@ -3,7 +3,7 @@ import { Plugin, PluginKey, TextSelection, type EditorState } from '@tiptap/pm/s
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import type { WritingSelection } from '@/packages/contracts/editorial';
 
-type Range = { from:number; to:number };
+type Range = { from:number; to:number; pinned?:boolean };
 export const writingSelectionKey = new PluginKey<Range|null>('writingSelectedPassage');
 
 // Decorations belong to the current editing session, never to saved/exported prose.
@@ -18,9 +18,10 @@ export function writingSelectionPlugin(){return new Plugin<Range|null>({
           const {from,to}=tr.selection;
           return next.doc.textBetween(from,to,'\n').trim()?{from,to}:previous;
         }
+        if(tr.selectionSet&&tr.selection.empty&&!tr.docChanged&&!previous?.pinned)return null;
         if(previous&&tr.docChanged){
           const from=tr.mapping.map(previous.from,1),to=tr.mapping.map(previous.to,-1);
-          return to>from&&next.doc.textBetween(from,to,'\n').trim()?{from,to}:null;
+          return to>from&&next.doc.textBetween(from,to,'\n').trim()?{from,to,pinned:previous.pinned}:null;
         }
         return previous;
       }
@@ -32,5 +33,5 @@ export const WritingSelectionHighlight = Extension.create({name:'writingSelected
 
 export function selectedWritingPassage(state:EditorState):WritingSelection|null {
   const range=writingSelectionKey.getState(state);
-  return range?{...range,text:state.doc.textBetween(range.from,range.to,'\n')}:null;
+  return range?{from:range.from,to:range.to,text:state.doc.textBetween(range.from,range.to,'\n')}:null;
 }

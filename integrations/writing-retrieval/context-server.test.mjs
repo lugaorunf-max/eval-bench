@@ -7,6 +7,11 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {createKnowledgeSource} from './project/server/knowledge.mjs';
 const token='test-only-private-bridge-123456';
+test('article-only mode omits structure cards and blueprint parents and keeps the matched passage',()=>{
+ const content='开头背景。'.repeat(4000)+'这里是命中的独有证据。'+'后文。'.repeat(1000);
+ const out=projectContext({templates:[{id:'N1'}],blueprints:[{id:'NEWS',sourceArticleIds:['PARENT']}],examples:[{id:'MATCH',contentExcerpt:'这里是命中的独有证据。'}]}, {instructions:'规则'}, {articles:[{id:'MATCH',title:'文章',originalNotePath:'/private/source',_sourceText:content},{id:'PARENT',title:'蓝图来源',_sourceText:'不应加入正文参考'}]},true);
+ assert.equal('templates' in out,false);assert.equal('blueprints' in out,false);assert.equal(out.articles.length,1);assert.equal(out.articles[0].id,'MATCH');assert.match(out.articles[0].content,/命中的独有证据/);assert.equal(out.articles[0].contentScope,'excerpt');
+});
 test('unanalysed full articles and blueprint parents are readable citation objects without private paths',()=>{
  const found={revision:'r1',examples:[{id:'A1',title:'IPO 报道',evidenceLevel:'candidate',contentExcerpt:'召回片段'}],blueprints:[{id:'NEWS-P',name:'推进',sourceArticleIds:['A2'],nodes:[]}]};
  const library={articles:[{id:'A1',title:'IPO 报道',url:'https://example.com/ipo',account:'作者',publishDate:'2026-01-01',evidenceLevel:'candidate',originalNotePath:'/private/original.md',_sourceText:'这篇尚未拆解的文章有可读取全文。末段是独立可核对的原文内容。'},{id:'A2',title:'蓝图原文',evidenceLevel:'analyzed',originalNotePath:'/private/parent.md',_sourceText:'先给出异常，再展示材料，最后解释影响。'}]};

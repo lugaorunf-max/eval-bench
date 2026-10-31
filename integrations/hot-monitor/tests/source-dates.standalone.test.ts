@@ -173,3 +173,15 @@ test("legacy JSON and RSS formats keep their source date and zone", () => {
     } finally { if (previous === undefined) delete process.env.TZ; else process.env.TZ = previous; }
   }
 });
+
+// Some publishers expose their article publication instant as epoch seconds in HTML attributes.
+test("epoch seconds and milliseconds keep their instant and time precision", () => {
+  const expected = "2026-10-30T07:24:54.000Z";
+  for (const offset of ["+08:00", "-07:00"]) {
+    assert.equal(iso("1793345094", offset), expected);
+    assert.equal(iso("1793345094000", offset), expected);
+    assert.equal(readPublicationDate("1793345094", offset).publicationTime, expected);
+    assert.equal(readPublicationDate("1793345094000", offset).publicationTime, expected);
+  }
+  assert.equal(iso("20261030152454"), "2026-10-30T07:24:54.000Z");
+});

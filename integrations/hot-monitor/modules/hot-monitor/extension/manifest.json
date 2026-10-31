@@ -1,21 +1,59 @@
 {
   "manifest_version": 3,
-  "name": "热点监测采集助手",
-  "version": "1.1.0",
-  "description": "围绕已确认选题，在当前网页保存案例，继续浏览后再回案例库。",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["http://localhost:43110/*", "http://127.0.0.1:43110/*"],
-  "optional_host_permissions": [
-    "https://*.x.com/*", "https://*.twitter.com/*", "https://*.reddit.com/*",
-    "https://*.youtube.com/*", "https://youtu.be/*", "https://mp.weixin.qq.com/*",
-    "https://weixin.sogou.com/*", "https://*.xiaohongshu.com/*", "https://*.xhslink.com/*",
-    "https://*.douyin.com/*", "https://*.bilibili.com/*", "https://*.weibo.com/*", "https://weibo.cn/*"
+  "name": "测写收集",
+  "version": "2.4.0",
+  "description": "收集素材、案例或直接解析视频提示词，支持公共库、本篇文章及重点标记。",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
   ],
-  "content_scripts": [{
-    "matches": ["http://localhost:43110/hotspots*", "http://127.0.0.1:43110/hotspots*"],
-    "js": ["workspace.js"],
-    "run_at": "document_idle"
-  }],
-  "action": {"default_title": "热点监测：设置选题或收集当前案例"},
-  "background": {"service_worker": "background.js", "type": "module"}
+  "host_permissions": [
+    "http://localhost:43110/*",
+    "http://127.0.0.1:43110/*"
+  ],
+  "optional_host_permissions": [
+    "https://*.x.com/*",
+    "https://*.twitter.com/*",
+    "https://*.reddit.com/*",
+    "https://*.youtube.com/*",
+    "https://youtu.be/*",
+    "https://mp.weixin.qq.com/*",
+    "https://weixin.sogou.com/*",
+    "https://*.xiaohongshu.com/*",
+    "https://*.xhslink.com/*",
+    "https://*.douyin.com/*",
+    "https://*.bilibili.com/*",
+    "https://*.weibo.com/*",
+    "https://weibo.cn/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:43110/hotspots*",
+        "http://127.0.0.1:43110/hotspots*"
+      ],
+      "js": [
+        "workspace.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "http://localhost:43110/*",
+        "http://127.0.0.1:43110/*"
+      ],
+      "js": [
+        "media-workspace.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "测写：收集素材或案例"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
 }

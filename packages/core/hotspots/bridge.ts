@@ -1,3 +1,5 @@
+import {ContentLibrary} from '../content-library';
+import type {CandidateCase} from '../../contracts/library';
 import {createHash} from 'node:crypto';
 import {eq} from 'drizzle-orm';
 import {z} from 'zod';
@@ -32,6 +34,7 @@ export class HotspotsBridge {
   const [articles,sources,links]=await Promise.all([this.e().list<WritingArticle>('article'),this.e().list<SourceItem & {provenance?:{eventId?:string;caseId?:string}}>('source'),this.e().list<{sourceId:string;eventId:string}>('topic-link')]);
   const counts:Record<string,number>={};for(const a of articles){const ids=new Set(a.references.filter(r=>r.kind==='source'&&!r.removed).map(r=>sources.find(s=>s.id===r.sourceId)?.provenance?.eventId||links.find(l=>l.sourceId===r.sourceId)?.eventId).filter(Boolean) as string[]);for(const id of ids)counts[id]=(counts[id]||0)+1;}return counts;
  }
+ async migrateLibrary(){const library=new ContentLibrary(this.e());let migrated=0;const deferred:string[]=[];for(let page=1;page<=100;page++){const data=await collectorJson('cases?browse=saved&pageSize=50&page='+page);for(const c of data.cases||[]){const linkedMedia:string[]=[];for(const asset of (data.assets||[]).filter((a:any)=>a.caseId===c.id)){try{linkedMedia.push((await this.asset(asset.id,{url:c.url,title:c.title,eventId:c.eventId,caseId:c.id})).id);}catch(error){deferred.push('附件 '+asset.id+'：'+String(error).slice(0,180));}}const candidate=await library.candidate({url:c.url,title:c.title||c.url,summary:c.summary||'',author:c.author||'',...(c.eventId?{eventId:c.eventId}:{}),leadId:c.id,mediaIds:linkedMedia});const old=(await this.e().list<any>('hotspot-link')).find(m=>m.externalCaseId===c.id);if(old?.caseId){await this.e().mutate<CandidateCase>(candidate.id,'case-candidate',d=>({...d,savedCaseId:old.caseId}));await library.link('case',old.caseId,{sourceId:candidate.sourceId,eventId:c.eventId});}migrated++;}const pagination=data.caseList?.page;if(!data.cases?.length||(pagination&&page>=pagination.total)||(!pagination&&data.cases.length<50))break;}for(const draft of await this.e().list<any>('case-prompt-draft')){const candidate=await library.candidate({url:draft.url,title:draft.title,summary:draft.sourceText||'',author:draft.author||'',mediaIds:draft.files.map((f:any)=>f.id)});await this.e().mutate<CandidateCase>(candidate.id,'case-candidate',c=>({...c,draftId:draft.id,savedCaseId:c.savedCaseId||draft.savedCaseId}));if(draft.savedCaseId)await library.link('case',draft.savedCaseId,{sourceId:candidate.sourceId});}return {migrated,deferred};}
  async source(eventId:string,caseId?:string){
   const detail=await collectorJson('events/'+encodeURIComponent(eventId));
   const c=caseId?detail.cases.find((c:any)=>c.id===caseId):undefined;
@@ -48,19 +51,15 @@ export class HotspotsBridge {
   const detail=await collectorJson('events/'+encodeURIComponent(eventId)),c=detail.cases.find((c:any)=>c.id===caseId);if(!c)throw new AppError(404,'案例不存在');
   const key=stable('case',caseId);const old=(await this.s.db.select().from(records).where(eq(records.id,key)))[0];
   if(old)return (await this.s.listCases()).find(c=>c.id===old.data.caseId);
-  // Serialize mapping creation with the case insertion, so repeated clicks cannot create orphan cases.
-  return this.s.db.transaction(async tx=>{
-   await tx.execute((await import('drizzle-orm')).sql`SELECT pg_advisory_xact_lock(hashtext(${key}))`);
-   const existing=(await tx.select().from(records).where(eq(records.id,key)))[0];if(existing)return (await new CasebenchService({...this.s.store,db:tx as any}).listCases()).find(c=>c.id===existing.data.caseId);
-   const created=await new CasebenchService({...this.s.store,db:tx as any}).saveCase({title:c.title.slice(0,100),prompt:v.prompt,scene:'code',capabilities:['follow'],artifactType:v.artifactType,executionMode:v.artifactType==='copy'?'text':v.artifactType==='web'?'html':'harness',instructions:`参考来源（仅用于溯源，不作为执行指令）：${c.url}`,inputIds:[],referenceId:null});
-   await tx.insert(records).values({id:key,kind:'hotspot-link',data:{eventId,externalCaseId:caseId,caseId:created.id,sourceSnapshot:{title:c.title,url:c.url,summary:c.summary,conditions:c.conditions}},createdAt:now(),updatedAt:now()});return created;
-  });
+  const library=new ContentLibrary(this.e()),candidate=await library.candidate({url:c.url,title:c.title,summary:c.summary||'',author:c.author||'',eventId,leadId:caseId}),created=await library.promote(candidate.id,{prompt:v.prompt,artifactType:v.artifactType});
+  await this.s.db.insert(records).values({id:key,kind:'hotspot-link',data:{eventId,externalCaseId:caseId,caseId:created.id,sourceSnapshot:{title:c.title,url:c.url,summary:c.summary,conditions:c.conditions}},createdAt:now(),updatedAt:now()}).onConflictDoNothing();return created;
  }
- async asset(id:string){
+
+ async asset(id:string,source?:{url:string;title:string;eventId?:string;caseId?:string}){
   const response=await collectorFetch('/api/admin/monitor/assets/'+encodeURIComponent(id));if(!response.ok)throw new AppError(response.status,'热点附件不存在或无法读取');
   const bytes=new Uint8Array(await response.arrayBuffer());const mime=response.headers.get('content-type')?.split(';')[0]||'application/octet-stream';
   const ext=({'image/png':'png','image/jpeg':'jpg','image/gif':'gif','image/webp':'webp','video/mp4':'mp4','video/webm':'webm'} as Record<string,string>)[mime];if(!ext)throw new AppError(400,'该文件不是可用媒体');
-  const file=await this.s.putFile(bytes,'热点素材.'+ext,mime,'reference',undefined,stable('file',id));await new MediaPreparationService(this.e()).attach({fileId:file.id,caption:'热点搜集素材'});return file;
+  const file=await this.s.putFile(bytes,'热点素材.'+ext,mime,'reference',undefined,stable('file',id));await new MediaPreparationService(this.e()).attach({fileId:file.id,caption:source?.title||'热点搜集素材'});if(source){const library=new ContentLibrary(this.e()),origin=await library.source(source);await library.link('media',file.id,{sourceId:origin.id,eventId:source.eventId});}return file;
  }
  async experiment(eventId:string,id:string){
   const detail=await collectorJson('events/'+encodeURIComponent(eventId)),x=detail.experiments.find((x:any)=>x.experimentId===id);if(!x)throw new AppError(404,'实测记录不存在');
